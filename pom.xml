@@ -4,7 +4,7 @@
     <groupId>com.synaptix</groupId>
     <artifactId>config-properties</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <name>Config Properties for Jackson</name>
+    <name>Config Properties</name>
     <properties>
         <target.jdk>1.8</target.jdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
