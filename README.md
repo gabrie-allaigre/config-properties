@@ -2,7 +2,7 @@
  
 ## Description
 
-Permet la transformation de IComponent en json pour Jackson
+Simplifie la configuration à partir d'un fichier interne ou externe
 
 ## Configuration
 
@@ -11,24 +11,49 @@ Ajouter dans le pom.xml :
 ```xml
 <dependency>
 	<groupId>com.synaptix</groupId>
-	<artifactId>component-jackson</artifactId>
+	<artifactId>config-properties</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
 ## Utilisation
 
-Si pas de définition de nouveau module pour `ObjectMapper`, ajouter à Jackson `ComponentBeanJacksonConfig`.
-
-Sinon ajouter le module à votre `ObjectMapper`
+Créer un objet component de configuration
 
 ``` java
-objectMapper = new ObjectMapper();
-objectMapper.registerModule(new ComponentBeanModule());
+ComponentBean
+public interface IConfig extends IComponent {
+
+    String getNomadeSerlvetUrl();
+
+    ServiceImplType getServiceImplType();
+
+    long getMaxSizeUploadAvarieImage();
+
+    Path getPublicAttachmentsDirectory();
+
+    enum ServiceImplType {
+        NomadeServlet, Fake, RusService
+    }
+}
 ```
 
-Si vous avez des champs dans le Json qui ne sont pas dans votre Component ajouter
+Créer la config :
 
 ``` java
-this.objectMapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
+ConfigProvider.Builder<IConfig> builder = ConfigProvider.newBuilder(IConfig.class);
+builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
+        ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
+        ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */),
+        ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")));
+IConfig config = builder.build();
+```
+
+Par défault, il lit dans la variables système `config.file` pour trouver le chemin du fichier ou en interne dans `config.properties` à partir de la racine.
+
+Les valeurs peuvent être changé :
+ 
+``` java
+builder.internalPropertiesPath("others/others.properties");
+builder.systemPropertyName("configuration");
 ```
