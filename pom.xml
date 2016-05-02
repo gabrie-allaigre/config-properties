@@ -61,6 +61,7 @@
                     <source>${target.jdk}</source>
                     <target>${target.jdk}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+					<proc>none</proc>
                 </configuration>
             </plugin>
             <plugin>
@@ -81,8 +82,6 @@
                 <artifactId>maven-processor-plugin</artifactId>
                 <version>${maven-processor-plugin.version}</version>
                 <configuration>
-                    <outputDirectory>${generated.sources.dir}</outputDirectory>
-
                     <systemProperties>
                         <failOnError>false</failOnError>
                     </systemProperties>
@@ -90,7 +89,6 @@
                 <executions>
                     <execution>
                         <id>component-bean</id>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>process-test</goal>
                         </goals>
