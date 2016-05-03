@@ -23,13 +23,16 @@ public class ConfigBuilderTest {
         builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
                 ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                 ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */),
-                ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")));
+                ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")),
+                ConfigProperty.toInteger("server.number", ConfigFields.number, 5)
+        );
         IConfig config = builder.build();
 
         BDDAssertions.then(config.getNomadeSerlvetUrl()).isEqualTo("https://nomade.talanlabs.com");
         BDDAssertions.then(config.getServiceImplType()).isEqualTo(IConfig.ServiceImplType.Fake);
         BDDAssertions.then(config.getMaxSizeUploadAvarieImage()).isEqualTo(1024L * 1024L);
         BDDAssertions.then((Object) config.getPublicAttachmentsDirectory()).isEqualTo(Paths.get("ici/la"));
+        BDDAssertions.then(config.getNumber()).isEqualTo(10);
     }
 
     @Test
@@ -53,12 +56,13 @@ public class ConfigBuilderTest {
             tempFile = Files.createTempFile("test", ".properties");
             Files.write(tempFile, Arrays.asList("server.nomade-servlet.url=https://external.talanlabs.com", "server.service-impl.type=RusService", "server.max-image-upload-avarie=1024"), StandardOpenOption.WRITE);
 
-            System.getProperties().put("config.file", tempFile.toFile().getAbsolutePath());
+            System.getProperties().put("config", tempFile.toFile().getAbsolutePath());
 
             ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
             builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
                     ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                     ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */));
+            builder.configLoader(DefaultConfigLoader.newBuilder().systemPropertyName("config").build());
             IConfig config = builder.build();
 
             BDDAssertions.then(config.getNomadeSerlvetUrl()).isEqualTo("https://external.talanlabs.com");

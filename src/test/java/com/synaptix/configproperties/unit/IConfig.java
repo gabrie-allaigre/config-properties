@@ -16,6 +16,8 @@ public interface IConfig extends IComponent {
 
     Path getPublicAttachmentsDirectory();
 
+    int getNumber();
+
     enum ServiceImplType {
         NomadeServlet, Fake, RusService
     }
