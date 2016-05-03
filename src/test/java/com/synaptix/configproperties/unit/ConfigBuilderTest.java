@@ -1,7 +1,8 @@
 package com.synaptix.configproperties.unit;
 
+import com.synaptix.configproperties.ConfigBuilder;
 import com.synaptix.configproperties.ConfigProperty;
-import com.synaptix.configproperties.ConfigProvider;
+import com.synaptix.configproperties.loader.DefaultConfigLoader;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.Test;
 
@@ -12,11 +13,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
-public class ConfigProviderTest {
+public class ConfigBuilderTest {
 
     @Test
     public void testConfigProviderRead() {
-        ConfigProvider.Builder<IConfig> builder = ConfigProvider.newBuilder(IConfig.class);
+        ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
                 ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                 ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */),
@@ -26,16 +27,16 @@ public class ConfigProviderTest {
         BDDAssertions.then(config.getNomadeSerlvetUrl()).isEqualTo("https://nomade.talanlabs.com");
         BDDAssertions.then(config.getServiceImplType()).isEqualTo(IConfig.ServiceImplType.Fake);
         BDDAssertions.then(config.getMaxSizeUploadAvarieImage()).isEqualTo(1024L * 1024L);
-        BDDAssertions.then((Object)config.getPublicAttachmentsDirectory()).isEqualTo(Paths.get("ici/la"));
+        BDDAssertions.then((Object) config.getPublicAttachmentsDirectory()).isEqualTo(Paths.get("ici/la"));
     }
 
     @Test
     public void testOtherInternalConfigProviderRead() {
-        ConfigProvider.Builder<IConfig> builder = ConfigProvider.newBuilder(IConfig.class);
+        ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
                 ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                 ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L));
-        builder.internalPropertiesPath("others/others.properties");
+        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("others/others.properties").build());
         IConfig config = builder.build();
 
         BDDAssertions.then(config.getNomadeSerlvetUrl()).isEqualTo("https://others.talanlabs.com");
@@ -52,7 +53,7 @@ public class ConfigProviderTest {
 
             System.getProperties().put("config.file", tempFile.toFile().getAbsolutePath());
 
-            ConfigProvider.Builder<IConfig> builder = ConfigProvider.newBuilder(IConfig.class);
+            ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
             builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
                     ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                     ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */));

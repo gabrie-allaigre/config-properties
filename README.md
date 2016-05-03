@@ -41,11 +41,11 @@ public interface IConfig extends IComponent {
 Créer la config :
 
 ``` java
-ConfigProvider.Builder<IConfig> builder = ConfigProvider.newBuilder(IConfig.class);
+ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
 builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
-        ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
-        ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */),
-        ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")));
+        ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake));
+builder.configProperty(ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */));
+builder.configProperty(ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")));
 IConfig config = builder.build();
 ```
 
@@ -54,6 +54,5 @@ Par défault, il lit dans la variables système `config.file` pour trouver le ch
 Les valeurs peuvent être changé :
  
 ``` java
-builder.internalPropertiesPath("others/others.properties");
-builder.systemPropertyName("configuration");
+builder.configLoader(DefaultConfigLoader.newBuilder().systemPropertyName("configuration").internalPropertiesPath("others/others.properties").build());
 ```

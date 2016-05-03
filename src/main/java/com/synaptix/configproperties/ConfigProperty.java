@@ -16,7 +16,7 @@ public class ConfigProperty<E> {
     private final IFromString<E> fromString;
     private final E defaultValue;
 
-    private ConfigProperty(String key, String propertyName, IFromString<E> fromString, E defaultValue) {
+    public ConfigProperty(String key, String propertyName, IFromString<E> fromString, E defaultValue) {
         super();
 
         this.key = key;
