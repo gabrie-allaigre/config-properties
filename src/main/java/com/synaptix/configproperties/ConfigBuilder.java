@@ -21,15 +21,15 @@ public class ConfigBuilder<E extends IComponent> {
 
     private IConfigLoader configLoader;
 
-    public static <E extends IComponent> ConfigBuilder<E> newBuilder(Class<E> componentClass) {
-        return new ConfigBuilder<>(componentClass);
-    }
-
     private ConfigBuilder(Class<E> componentClass) {
         super();
 
         this.componentClass = componentClass;
         this.configProperties = new ArrayList<>();
+    }
+
+    public static <E extends IComponent> ConfigBuilder<E> newBuilder(Class<E> componentClass) {
+        return new ConfigBuilder<>(componentClass);
     }
 
     public ConfigBuilder configLoader(IConfigLoader configLoader) {

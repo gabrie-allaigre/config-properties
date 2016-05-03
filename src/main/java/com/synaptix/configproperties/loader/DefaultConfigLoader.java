@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Properties;
@@ -20,6 +19,46 @@ public class DefaultConfigLoader implements IConfigLoader {
 
     private final String systemPropertyName;
     private final String internalPropertiesPath;
+
+    public DefaultConfigLoader(String systemPropertyName, String internalPropertiesPath) {
+        super();
+
+        this.systemPropertyName = systemPropertyName;
+        this.internalPropertiesPath = internalPropertiesPath;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    @Override
+    public Properties readProperties() {
+        Properties properties = new Properties();
+
+        String configFilePath = System.getProperty(systemPropertyName);
+        if (!StringUtils.isBlank(configFilePath)) {
+            LOG.info("Read config file in external " + configFilePath);
+            try {
+                try (Reader reader = new FileReader(configFilePath)) {
+                    properties.load(reader);
+                }
+            } catch (Exception e) {
+                LOG.error("Not read external file " + configFilePath, e);
+                throw new LoaderReadException("Not read external file " + configFilePath, e);
+            }
+        } else {
+            LOG.info("Read config file in internal");
+            try {
+                try (InputStream in = Resources.asByteSource(Resources.getResource(internalPropertiesPath)).openStream()) {
+                    properties.load(in);
+                }
+            } catch (Exception e) {
+                LOG.error("Not read internal file " + internalPropertiesPath, e);
+                throw new LoaderReadException("Not read internal file " + internalPropertiesPath, e);
+            }
+        }
+        return properties;
+    }
 
     public static class Builder {
 
@@ -47,41 +86,4 @@ public class DefaultConfigLoader implements IConfigLoader {
         }
 
     }
-
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    public DefaultConfigLoader(String systemPropertyName, String internalPropertiesPath) {
-        super();
-
-        this.systemPropertyName = systemPropertyName;
-        this.internalPropertiesPath = internalPropertiesPath;
-    }
-
-    @Override
-    public Properties readProperties() {
-        Properties properties = new Properties();
-
-        String configFilePath = System.getProperty(systemPropertyName);
-        if (!StringUtils.isBlank(configFilePath)) {
-            LOG.info("Read config file in external " + configFilePath);
-            try (Reader reader = new FileReader(configFilePath)) {
-                properties.load(reader);
-            } catch (IOException e) {
-                LOG.error("Not read external file " + configFilePath, e);
-                throw new LoaderReadError("Not read external file " + configFilePath, e);
-            }
-        } else {
-            LOG.info("Read config file in internal");
-            try (InputStream in = Resources.asByteSource(Resources.getResource(internalPropertiesPath)).openStream()) {
-                properties.load(in);
-            } catch (IOException e) {
-                LOG.error("Not read internal file " + internalPropertiesPath, e);
-                throw new LoaderReadError("Not read internal file " + internalPropertiesPath, e);
-            }
-        }
-        return properties;
-    }
-
 }

@@ -3,6 +3,8 @@ package com.synaptix.configproperties.unit;
 import com.synaptix.configproperties.ConfigBuilder;
 import com.synaptix.configproperties.ConfigProperty;
 import com.synaptix.configproperties.loader.DefaultConfigLoader;
+import com.synaptix.configproperties.loader.LoaderReadException;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.Test;
 
@@ -65,10 +67,35 @@ public class ConfigBuilderTest {
         } finally {
             if (tempFile != null) {
                 Files.deleteIfExists(tempFile);
-
-                System.getProperties().remove("config.file");
             }
+            System.getProperties().remove("config.file");
         }
+    }
 
+    @Test
+    public void testExceptionInternalConfigProviderRead() {
+        ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
+        builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
+                ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
+                ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L));
+        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("error/others.properties").build());
+
+        Assertions.assertThat(Assertions.catchThrowable(builder::build)).isExactlyInstanceOf(LoaderReadException.class);
+    }
+
+    @Test
+    public void testExceptionExternalConfigProviderRead() throws IOException {
+        try {
+            System.getProperties().put("config.file", "/error");
+
+            ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
+            builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
+                    ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
+                    ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */));
+
+            Assertions.assertThat(Assertions.catchThrowable(builder::build)).isExactlyInstanceOf(LoaderReadException.class);
+        } finally {
+            System.getProperties().remove("config.file");
+        }
     }
 }
