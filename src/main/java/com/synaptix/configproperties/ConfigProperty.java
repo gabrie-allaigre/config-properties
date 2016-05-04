@@ -6,15 +6,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class ConfigProperty<E> {
 
     private static final Logger LOG = LogManager.getLogger(ConfigProperty.class);
 
-    private static final IFromString<String> STRING_FROM_STRING = value -> value;
-    private static final IFromString<Integer> INTEGER_FROM_STRING = Integer::parseInt;
-    private static final IFromString<Long> LONG_FROM_STRING = Long::parseLong;
+    public static final IFromString<String> STRING_FROM_STRING = value -> value;
+    public static final IFromString<Integer> INTEGER_FROM_STRING = Integer::parseInt;
+    public static final IFromString<Long> LONG_FROM_STRING = Long::parseLong;
+    public static final IFromString<Float> FLOAT_FROM_STRING = Float::parseFloat;
+    public static final IFromString<Double> DOUBLE_FROM_STRING = Double::parseDouble;
+    public static final IFromString<Boolean> BOOLEAN_FROM_STRING = Boolean::parseBoolean;
 
     private final String key;
     private final String propertyName;
@@ -40,6 +46,22 @@ public class ConfigProperty<E> {
 
     public static ConfigProperty<Integer> toInteger(String key, String propertyName, Integer defaultValue) {
         return toGeneric(key, propertyName, INTEGER_FROM_STRING, defaultValue);
+    }
+
+    public static ConfigProperty<Float> toFloat(String key, String propertyName, Float defaultValue) {
+        return toGeneric(key, propertyName, FLOAT_FROM_STRING, defaultValue);
+    }
+
+    public static ConfigProperty<Double> toDouble(String key, String propertyName, Double defaultValue) {
+        return toGeneric(key, propertyName, DOUBLE_FROM_STRING, defaultValue);
+    }
+
+    public static ConfigProperty<Boolean> toBoolean(String key, String propertyName, Boolean defaultValue) {
+        return toGeneric(key, propertyName, BOOLEAN_FROM_STRING, defaultValue);
+    }
+
+    public static <E> ConfigProperty<E[]> toArray(String key, String propertyName, IFromString<E> fromString, E[] defaultValue) {
+        return toGeneric(key, propertyName, new ArrayFromString<E>(fromString), defaultValue);
     }
 
     public static <E> ConfigProperty<E> toGeneric(String key, String propertyName, IFromString<E> fromString, E defaultValue) {
@@ -105,5 +127,23 @@ public class ConfigProperty<E> {
 
         E fromString(String value);
 
+    }
+
+    private static class ArrayFromString<E> implements IFromString<E[]> {
+
+        private final IFromString<E> elementFromString;
+
+        public ArrayFromString(IFromString<E> elementFromString) {
+            super();
+
+            this.elementFromString = elementFromString;
+        }
+
+        @Override
+        public E[] fromString(String value) {
+            String[] ss = value.split(",");
+            List<E> list = Arrays.stream(ss).map(elementFromString::fromString).collect(Collectors.toList());
+            return (E[]) list.toArray();
+        }
     }
 }
