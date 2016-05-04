@@ -17,7 +17,7 @@
 
         <junit.version>4.12</junit.version>
         <assertj-core.version>3.4.0</assertj-core.version>
-        <component-bean.version>2.0.0</component-bean.version>
+        <component-bean.version>2.0.1</component-bean.version>
 
         <jacoco-maven-plugin.version>0.7.5.201505241946</jacoco-maven-plugin.version>
         <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec

@@ -1,11 +1,16 @@
 package com.synaptix.configproperties;
 
 import com.synaptix.component.IComponent;
+import com.synaptix.component.factory.ComponentFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
 
 public class ConfigProperty<E> {
+
+    private static final Logger LOG = LogManager.getLogger(ConfigProperty.class);
 
     private static final IFromString<String> STRING_FROM_STRING = value -> value;
     private static final IFromString<Integer> INTEGER_FROM_STRING = Integer::parseInt;
@@ -65,9 +70,36 @@ public class ConfigProperty<E> {
         } else {
             v = fromString.fromString(s);
         }
-        config.straightSetProperty(propertyName, v);
+        setValue(config, propertyName, v);
         return v;
     }
+
+    private void setValue(IComponent component, String propertyName, E value) {
+        if (component == null) {
+            return;
+        }
+        int index = propertyName.indexOf('.');
+        if (index == -1) {
+            component.straightSetProperty(propertyName, value);
+        } else {
+            String head = propertyName.substring(0, index);
+            Object temp = component.straightGetProperty(head);
+            if (temp == null) {
+                Class<?> clazz = component.straightGetPropertyClass(head);
+                if (!ComponentFactory.getInstance().isComponentType(clazz)) {
+                    LOG.error("Not set property " + propertyName + " Parent is not IComponent " + head);
+                    return;
+                }
+                temp = ComponentFactory.getInstance().createInstance(clazz);
+                component.straightSetProperty(head, temp);
+            } else if (!(temp instanceof IComponent)) {
+                LOG.error("Not set property " + propertyName + " Parent is not IComponent " + head);
+                return;
+            }
+            setValue((IComponent) temp, propertyName.substring(index + 1), value);
+        }
+    }
+
 
     public interface IFromString<E> {
 

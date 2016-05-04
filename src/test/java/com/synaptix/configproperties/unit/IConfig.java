@@ -18,8 +18,18 @@ public interface IConfig extends IComponent {
 
     int getNumber();
 
+    IMailConfig getMailConfig();
+
     enum ServiceImplType {
         NomadeServlet, Fake, RusService
     }
 
+    @ComponentBean
+    public interface IMailConfig extends IComponent {
+
+        String getSmptHost();
+
+        Integer getSmptPort();
+
+    }
 }

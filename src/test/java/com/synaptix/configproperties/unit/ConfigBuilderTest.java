@@ -24,7 +24,9 @@ public class ConfigBuilderTest {
                 ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                 ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */),
                 ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")),
-                ConfigProperty.toInteger("server.number", ConfigFields.number, 5)
+                ConfigProperty.toInteger("server.number", ConfigFields.number, 5),
+                ConfigProperty.toString("server.mail.smtp.host", ConfigFields.mailConfig().dot().smptHost().name(), null),
+                ConfigProperty.toInteger("server.mail.smtp.port", ConfigFields.mailConfig().dot().smptPort().name(), null)
         );
         IConfig config = builder.build();
 
@@ -33,6 +35,9 @@ public class ConfigBuilderTest {
         BDDAssertions.then(config.getMaxSizeUploadAvarieImage()).isEqualTo(1024L * 1024L);
         BDDAssertions.then((Object) config.getPublicAttachmentsDirectory()).isEqualTo(Paths.get("ici/la"));
         BDDAssertions.then(config.getNumber()).isEqualTo(10);
+        BDDAssertions.then(config.getMailConfig()).isNotNull();
+        BDDAssertions.then(config.getMailConfig().getSmptHost()).isEqualTo("smpt.gmail.com");
+        BDDAssertions.then(config.getMailConfig().getSmptPort()).isNull();
     }
 
     @Test
