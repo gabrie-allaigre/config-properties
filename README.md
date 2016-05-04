@@ -20,7 +20,7 @@ Ajouter dans le pom.xml :
 
 Créer un objet component de configuration
 
-``` java
+```java
 ComponentBean
 public interface IConfig extends IComponent {
 
@@ -32,20 +32,33 @@ public interface IConfig extends IComponent {
 
     Path getPublicAttachmentsDirectory();
 
+    IMailConfig getMailConfig();
+
     enum ServiceImplType {
         NomadeServlet, Fake, RusService
+    }
+    
+    ComponentBean
+    public interface IMailConfig extends IComponent {
+    
+        String getSmptHost();
+    
+        Integer getSmptPort();
+    
     }
 }
 ```
 
 Créer la config :
 
-``` java
+```java
 ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
 builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
         ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake));
 builder.configProperty(ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */));
 builder.configProperty(ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")));
+builder.configProperty(ConfigProperty.toString("server.mail.smtp.host", ConfigFields.mailConfig().dot().smptHost().name(), null),
+        ConfigProperty.toInteger("server.mail.smtp.port", ConfigFields.mailConfig().dot().smptPort().name(), null));
 IConfig config = builder.build();
 ```
 
