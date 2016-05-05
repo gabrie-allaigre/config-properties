@@ -34,6 +34,12 @@ public interface IConfig extends IComponent {
 
     IMailConfig getMailConfig();
 
+    List<String> getGroups();
+
+    String[] getRoles();
+
+    Set<String> getEnums();
+
     enum ServiceImplType {
         NomadeServlet, Fake, RusService
     }
@@ -59,6 +65,9 @@ builder.configProperty(ConfigProperty.toLong("server.max-image-upload-avarie", C
 builder.configProperty(ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")));
 builder.configProperty(ConfigProperty.toString("server.mail.smtp.host", ConfigFields.mailConfig().dot().smptHost().name(), null),
         ConfigProperty.toInteger("server.mail.smtp.port", ConfigFields.mailConfig().dot().smptPort().name(), null));
+builder.configProperty(CollectionConfigProperty.toList("server.groups", ConfigFields.groups, ConfigProperty.STRING_FROM_STRING, null),
+        CollectionConfigProperty.toSet("server.enums", ConfigFields.enums, ConfigProperty.STRING_FROM_STRING, null));
+builder.configProperty(ArrayConfigProperty.toArrayString("server.roles", ConfigFields.roles,  null));
 IConfig config = builder.build();
 ```
 

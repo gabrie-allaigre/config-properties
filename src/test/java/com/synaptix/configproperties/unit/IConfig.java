@@ -4,6 +4,8 @@ import com.synaptix.component.IComponent;
 import com.synaptix.component.annotation.ComponentBean;
 
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
 
 @ComponentBean
 public interface IConfig extends IComponent {
@@ -19,6 +21,12 @@ public interface IConfig extends IComponent {
     int getNumber();
 
     IMailConfig getMailConfig();
+
+    List<String> getGroups();
+
+    String[] getRoles();
+
+    Set<String> getEnums();
 
     enum ServiceImplType {
         NomadeServlet, Fake, RusService
