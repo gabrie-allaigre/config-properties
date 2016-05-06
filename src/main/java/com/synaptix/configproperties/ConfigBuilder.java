@@ -17,7 +17,7 @@ public class ConfigBuilder<E extends IComponent> {
     private static final Logger LOG = LogManager.getLogger(ConfigBuilder.class);
 
     private final Class<E> componentClass;
-    private final List<ConfigProperty<?>> configProperties;
+    private final List<IConfigProperty<?>> configProperties;
 
     private IConfigLoader configLoader;
 
@@ -28,16 +28,27 @@ public class ConfigBuilder<E extends IComponent> {
         this.configProperties = new ArrayList<>();
     }
 
+    /**
+     * Create config component
+     *
+     * @param componentClass component class
+     */
     public static <E extends IComponent> ConfigBuilder<E> newBuilder(Class<E> componentClass) {
         return new ConfigBuilder<>(componentClass);
     }
 
+    /**
+     * @param configLoader change config loader, default is DefaultConfigLoader
+     */
     public ConfigBuilder configLoader(IConfigLoader configLoader) {
         this.configLoader = configLoader;
         return this;
     }
 
-    public ConfigBuilder configProperty(ConfigProperty<?> configProperty, ConfigProperty<?>... configProperties) {
+    /**
+     * Add config property
+     */
+    public ConfigBuilder configProperty(IConfigProperty<?> configProperty, IConfigProperty<?>... configProperties) {
         this.configProperties.add(configProperty);
         if (configProperties != null) {
             this.configProperties.addAll(Arrays.asList(configProperties));
@@ -45,6 +56,9 @@ public class ConfigBuilder<E extends IComponent> {
         return this;
     }
 
+    /**
+     * @return New config component
+     */
     public E build() {
         if (configLoader == null) {
             configLoader = DefaultConfigLoader.newBuilder().build();
@@ -56,8 +70,8 @@ public class ConfigBuilder<E extends IComponent> {
         return config;
     }
 
-    private void setProperty(ConfigProperty<?> configProperty, Properties properties, E config) {
-        Object res = configProperty.setProperty(properties, config);
-        LOG.info(String.format("Config property %1s = %2s", configProperty.getKey(), res));
+    private void setProperty(IConfigProperty<?> configProperty, Properties properties, E component) {
+        Object res = configProperty.setProperty(properties, component);
+        LOG.info(String.format("Set property %1s -> %2s", configProperty.toString(), res));
     }
 }

@@ -1,11 +1,9 @@
 package com.synaptix.configproperties.unit;
 
 import com.synaptix.configproperties.ConfigBuilder;
-import com.synaptix.configproperties.ConfigProperty;
 import com.synaptix.configproperties.loader.DefaultConfigLoader;
 import com.synaptix.configproperties.loader.LoaderReadException;
-import com.synaptix.configproperties.properties.ArrayConfigProperty;
-import com.synaptix.configproperties.properties.CollectionConfigProperty;
+import com.synaptix.configproperties.properties.*;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.Test;
@@ -54,10 +52,35 @@ public class ConfigBuilderTest {
     @Test
     public void testArrayConfigProviderRead() {
         ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
-        builder.configProperty(ArrayConfigProperty.toArrayString("server.roles", ConfigFields.roles,  null));
+        builder.configProperty(ArrayConfigProperty.toArrayString("server.roles", ConfigFields.roles, null));
         IConfig config = builder.build();
 
         BDDAssertions.then(config.getRoles()).containsExactly("admin", "user");
+    }
+
+    @Test
+    public void testPropertiesConfigProviderRead() {
+        ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
+        builder.configProperty(new PropertiesConfigProperty(ConfigFields.properties));
+        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("propertiesconfig.properties").build());
+        IConfig config = builder.build();
+
+        BDDAssertions.then(config.getProperties()).isNotNull();
+        BDDAssertions.then(config.getProperties().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void testMapConfigProviderRead() {
+        ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
+        builder.configProperty(MapConfigProperty.toHashMap("server.groups", ConfigFields.groupMap, ConfigProperty.STRING_FROM_STRING, ConfigProperty.STRING_FROM_STRING, null));
+        builder.configProperty(MapConfigProperty.toHashMap("server.types", ConfigFields.typeMap, ConfigProperty.INTEGER_FROM_STRING, IConfig.ServiceImplType::valueOf, null));
+        builder.configProperty(MapConfigProperty.toHashMap("server.booleans", ConfigFields.booleanMap, IConfig.ServiceImplType::valueOf, ConfigProperty.BOOLEAN_FROM_STRING, null));
+        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("mapconfig.properties").build());
+        IConfig config = builder.build();
+
+        BDDAssertions.then(config.getGroupMap()).containsEntry("ADMIN", "gaby").containsEntry("USER", "sandra");
+        BDDAssertions.then(config.getTypeMap()).containsEntry(1, IConfig.ServiceImplType.NomadeServlet).containsEntry(2, IConfig.ServiceImplType.Fake);
+        BDDAssertions.then(config.getBooleanMap()).containsEntry(IConfig.ServiceImplType.NomadeServlet, true).containsEntry(IConfig.ServiceImplType.Fake, false);
     }
 
     @Test

@@ -2,7 +2,7 @@
  
 ## Description
 
-Simplifie la configuration à partir d'un fichier interne ou externe
+Simplifie la configuration à partir d'un fichier interne ou externe de `properties` vers un Component Bean.
 
 ## Configuration
 
@@ -18,10 +18,10 @@ Ajouter dans le pom.xml :
 
 ## Utilisation
 
-Créer un objet component de configuration
+Créer un objet component de configuration.
 
 ```java
-ComponentBean
+@ComponentBean
 public interface IConfig extends IComponent {
 
     String getNomadeSerlvetUrl();
@@ -40,11 +40,13 @@ public interface IConfig extends IComponent {
 
     Set<String> getEnums();
 
+    Map<ServiceImplType, Boolean> getBooleanMap();
+
     enum ServiceImplType {
         NomadeServlet, Fake, RusService
     }
     
-    ComponentBean
+    @ComponentBean
     public interface IMailConfig extends IComponent {
     
         String getSmptHost();
@@ -68,6 +70,7 @@ builder.configProperty(ConfigProperty.toString("server.mail.smtp.host", ConfigFi
 builder.configProperty(CollectionConfigProperty.toList("server.groups", ConfigFields.groups, ConfigProperty.STRING_FROM_STRING, null),
         CollectionConfigProperty.toSet("server.enums", ConfigFields.enums, ConfigProperty.STRING_FROM_STRING, null));
 builder.configProperty(ArrayConfigProperty.toArrayString("server.roles", ConfigFields.roles,  null));
+builder.configProperty(MapConfigProperty.toHashMap("server.booleans", ConfigFields.booleanMap, IConfig.ServiceImplType::valueOf, ConfigProperty.BOOLEAN_FROM_STRING, null));
 IConfig config = builder.build();
 ```
 
@@ -78,3 +81,27 @@ Les valeurs peuvent être changé :
 ``` java
 builder.configLoader(DefaultConfigLoader.newBuilder().systemPropertyName("configuration").internalPropertiesPath("others/others.properties").build());
 ```
+
+## Détails des types définits
+
+| Type | IConfigProperty |
+|---|------------|
+| String | ConfigProperty.toString |
+| Integer | ConfigProperty.toInteger |
+| Long | ConfigProperty.toLong |
+| Double | ConfigProperty.toDouble |
+| Float | ConfigProperty.toFloat |
+| Enum, ... | ConfigProperty.toGeneric |
+| List<E> | CollectionConfigProperty.toList |
+| Set<E> | CollectionConfigProperty.toSet |
+| String[] | ArrayConfigProperty.toArrayString |
+| Integer[] | ArrayConfigProperty.toArrayInteger |
+| Long[] | ArrayConfigProperty.toArrayLong |
+| Double[] | ArrayConfigProperty.toArrayDouble |
+| Float[] | ArrayConfigProperty.toArrayFloat |
+| Boolean[] | ArrayConfigProperty.toArrayBoolean |
+| E[] | ArrayConfigProperty.toArrayGeneric |
+| Map<E,F> | MapConfigProperty.toHashMap |
+| Properties | PropertiesConfigProperty |
+
+**Vous pouvez ajouter d'autres types en créant une class implementant un `IConfigProperty`**
