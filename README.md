@@ -12,7 +12,7 @@ Ajouter dans le pom.xml :
 <dependency>
 	<groupId>com.synaptix</groupId>
 	<artifactId>config-properties</artifactId>
-	<version>1.0.0</version>
+	<version>1.2.0</version>
 </dependency>
 ```
 
