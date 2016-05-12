@@ -82,6 +82,21 @@ Les valeurs peuvent être changé :
 builder.configLoader(DefaultConfigLoader.newBuilder().systemPropertyName("configuration").internalPropertiesPath("others/others.properties").build());
 ```
 
+Le fichier `.properties` contient la liste des clefs valeurs.
+
+``` properties
+# Exemple Simple
+server.number=10
+server.mail.smtp.host=smpt.gmail.com
+
+# Exemple List, par défaut séparateur ","
+server.groups=admin,user
+
+# Exemple de Map, la clef est le text après server.booleans.
+server.booleans.NomadeServlet=true
+server.booleans.Fake=false
+```
+
 ## Détails des types définits
 
 | Type | IConfigProperty |
