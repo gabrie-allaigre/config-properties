@@ -18,6 +18,10 @@ public class SystemConfigLoader implements IConfigLoader {
 
     private final String systemPropertyName;
 
+    public SystemConfigLoader() {
+        this(DEFAULT_SYSTEM_PROPERTY_NAME);
+    }
+
     public SystemConfigLoader(String systemPropertyName) {
         super();
 

@@ -9,7 +9,7 @@ public class CompositeConfigLoader implements IConfigLoader {
 
     private List<IConfigLoader> configLoaders;
 
-    private CompositeConfigLoader(IConfigLoader... configLoaders) {
+    public CompositeConfigLoader(IConfigLoader... configLoaders) {
         super();
 
         this.configLoaders = Arrays.asList(Objects.requireNonNull(configLoaders));

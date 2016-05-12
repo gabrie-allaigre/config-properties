@@ -1,30 +1,18 @@
 package com.synaptix.configproperties.loader;
 
-import com.google.common.io.Resources;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.FileReader;
-import java.io.InputStream;
-import java.io.Reader;
 import java.util.Properties;
 
 public class DefaultConfigLoader implements IConfigLoader {
 
-    private static final Logger LOG = LogManager.getLogger(DefaultConfigLoader.class);
+    public static final String DEFAULT_SYSTEM_PROPERTY_NAME = SystemConfigLoader.DEFAULT_SYSTEM_PROPERTY_NAME;
+    public static final String DEFAULT_INTERNAL_PROPERTIES_PATH = ResourceConfigLoader.DEFAULT_INTERNAL_PROPERTIES_PATH;
 
-    public static final String DEFAULT_SYSTEM_PROPERTY_NAME = "config.file";
-    public static final String DEFAULT_INTERNAL_PROPERTIES_PATH = "config.properties";
-
-    private final String systemPropertyName;
-    private final String internalPropertiesPath;
+    private final IConfigLoader compositeConfigLoader;
 
     public DefaultConfigLoader(String systemPropertyName, String internalPropertiesPath) {
         super();
 
-        this.systemPropertyName = systemPropertyName;
-        this.internalPropertiesPath = internalPropertiesPath;
+        this.compositeConfigLoader = new CompositeConfigLoader(new SystemConfigLoader(systemPropertyName), new ResourceConfigLoader(internalPropertiesPath));
     }
 
     public static Builder newBuilder() {
@@ -33,31 +21,7 @@ public class DefaultConfigLoader implements IConfigLoader {
 
     @Override
     public Properties readProperties() {
-        Properties properties = new Properties();
-
-        String configFilePath = System.getProperty(systemPropertyName);
-        if (!StringUtils.isBlank(configFilePath)) {
-            LOG.info("Read config file in external " + configFilePath);
-            try {
-                try (Reader reader = new FileReader(configFilePath)) {
-                    properties.load(reader);
-                }
-            } catch (Exception e) {
-                LOG.error("Not read external file " + configFilePath, e);
-                throw new LoaderReadException("Not read external file " + configFilePath, e);
-            }
-        } else {
-            LOG.info("Read config file in internal");
-            try {
-                try (InputStream in = Resources.asByteSource(Resources.getResource(internalPropertiesPath)).openStream()) {
-                    properties.load(in);
-                }
-            } catch (Exception e) {
-                LOG.error("Not read internal file " + internalPropertiesPath, e);
-                throw new LoaderReadException("Not read internal file " + internalPropertiesPath, e);
-            }
-        }
-        return properties;
+        return compositeConfigLoader.readProperties();
     }
 
     public static class Builder {
