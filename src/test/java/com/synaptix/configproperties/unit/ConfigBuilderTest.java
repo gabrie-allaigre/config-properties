@@ -121,19 +121,8 @@ public class ConfigBuilderTest {
             if (tempFile != null) {
                 Files.deleteIfExists(tempFile);
             }
-            System.getProperties().remove("config.file");
+            System.getProperties().remove("config");
         }
-    }
-
-    @Test
-    public void testExceptionInternalConfigProviderRead() {
-        ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
-        builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
-                ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
-                ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L));
-        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("error/others.properties").build());
-
-        Assertions.assertThat(Assertions.catchThrowable(builder::build)).isExactlyInstanceOf(LoaderReadException.class);
     }
 
     @Test
