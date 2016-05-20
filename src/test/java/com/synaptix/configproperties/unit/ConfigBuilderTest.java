@@ -121,7 +121,7 @@ public class ConfigBuilderTest {
             if (tempFile != null) {
                 Files.deleteIfExists(tempFile);
             }
-            System.getProperties().remove("config.file");
+            System.getProperties().remove("config");
         }
     }
 

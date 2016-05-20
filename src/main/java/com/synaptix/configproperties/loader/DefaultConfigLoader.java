@@ -12,7 +12,7 @@ public class DefaultConfigLoader implements IConfigLoader {
     public DefaultConfigLoader(String systemPropertyName, String internalPropertiesPath) {
         super();
 
-        this.compositeConfigLoader = new CompositeConfigLoader(new SystemConfigLoader(systemPropertyName), new ResourceConfigLoader(internalPropertiesPath));
+        this.compositeConfigLoader = new FirstNotNullConfigLoader(new SystemConfigLoader(systemPropertyName), new ResourceConfigLoader(internalPropertiesPath));
     }
 
     public static Builder newBuilder() {
