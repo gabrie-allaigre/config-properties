@@ -1,9 +1,20 @@
 package com.synaptix.configproperties.loader;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Properties;
 
 public interface IConfigLoader {
+
+    /**
+     * Get a config loader with file properties
+     *
+     * @param file file
+     * @return a config loader
+     */
+    static IConfigLoader file(File file) {
+        return new FileConfigLoader(file);
+    }
 
     /**
      * Get a config loader with system properties path

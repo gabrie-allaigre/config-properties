@@ -32,7 +32,7 @@ public class ComposeConfigLoaderTest {
 
             System.getProperties().put("config.file", tempFile.toFile().getAbsolutePath());
 
-            Properties properties = new ComposeConfigLoader(IConfigLoader.system("config.file"), IConfigLoader.resource("config.properties")).readProperties();
+            Properties properties = IConfigLoader.compose(IConfigLoader.system("config.file"), IConfigLoader.resource("config.properties")).readProperties();
             Assertions.assertThat(properties).isNotNull();
             Assertions.assertThat(properties.getProperty("server.service-impl.type")).isEqualTo("Fake");
             Assertions.assertThat(properties.getProperty("server.mail.smtp.host")).isEqualTo("smpt.gmail.com");

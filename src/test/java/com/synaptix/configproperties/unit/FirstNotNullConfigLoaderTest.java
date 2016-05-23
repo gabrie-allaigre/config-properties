@@ -31,7 +31,7 @@ public class FirstNotNullConfigLoaderTest {
 
             System.getProperties().put("config.file", tempFile.toFile().getAbsolutePath());
 
-            Properties properties = new FirstNotNullConfigLoader(IConfigLoader.system("config.file"), IConfigLoader.resource("config.properties")).readProperties();
+            Properties properties = IConfigLoader.firstNotNull(IConfigLoader.system("config.file"), IConfigLoader.resource("config.properties")).readProperties();
             Assertions.assertThat(properties).isNotNull();
             Assertions.assertThat(properties.getProperty("server.service-impl.type")).isEqualTo("RusService");
         } finally {

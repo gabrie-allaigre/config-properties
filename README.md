@@ -76,10 +76,27 @@ IConfig config = builder.build();
 
 Par défault, il lit dans la variables système `config.file` pour trouver le chemin du fichier ou en interne dans `config.properties` à partir de la racine.
 
-Les valeurs peuvent être changé :
+Le loader peut être modifier, pour changer le default :
  
 ``` java
 builder.configLoader(DefaultConfigLoader.newBuilder().systemPropertyName("configuration").internalPropertiesPath("others/others.properties").build());
+```
+
+Différents `Config Loader` :
+
+``` java
+IConfigLoader.system("property"); // Nom de la variable système
+IConfigLoader.url("http://toto.com/config.properties"); // URL vers la config 
+IConfigLoader.resource("config.properties"); // Chemin interne
+IConfigLoader.file("C:/config.properties"); // Chemin système
+```
+
+Possibiliter de les cumuler :
+
+``` java
+IConfigLoader.compose(IConfigLoader.system("property"),IConfigLoader.resource("config.properties")); // Additione tous les propreties trouvées
+IConfigLoader.firstNotNull(IConfigLoader.system("property"),IConfigLoader.resource("config.properties")); // Le premier non null
+
 ```
 
 Le fichier `.properties` contient la liste des clefs valeurs.
