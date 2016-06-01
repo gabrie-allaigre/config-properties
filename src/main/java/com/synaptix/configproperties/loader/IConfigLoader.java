@@ -7,6 +7,25 @@ import java.util.Properties;
 public interface IConfigLoader {
 
     /**
+     * Get a config loader with properties
+     *
+     * @param properties a properties
+     * @return a config loader
+     */
+    static IConfigLoader properties(Properties properties) {
+        return new PropertiesConfigLoader(properties);
+    }
+
+    /**
+     * Get a config loader with main args. Use StaticGetArgs.getINSTANCE().setArgs
+     *
+     * @return a config loader
+     */
+    static IConfigLoader properties() {
+        return new ArgsConfigLoader();
+    }
+
+    /**
      * Get a config loader with file properties
      *
      * @param file file
@@ -24,6 +43,24 @@ public interface IConfigLoader {
      */
     static IConfigLoader system(String propertyName) {
         return new SystemConfigLoader(propertyName);
+    }
+
+    /**
+     * Get a config loader with system properties
+     *
+     * @return a config loader
+     */
+    static IConfigLoader systemProperties() {
+        return new SystemPropertiesConfigLoader();
+    }
+
+    /**
+     * Get a config loader with env properties
+     *
+     * @return a config loader
+     */
+    static IConfigLoader envProperties() {
+        return new EnvPropertiesConfigLoader();
     }
 
     /**
