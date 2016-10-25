@@ -17,7 +17,7 @@
 
         <junit.version>4.12</junit.version>
         <assertj-core.version>3.4.0</assertj-core.version>
-        <component-bean.version>2.0.1</component-bean.version>
+        <component-bean.version>2.1.2</component-bean.version>
 
         <jacoco-maven-plugin.version>0.7.5.201505241946</jacoco-maven-plugin.version>
         <jacoco.ut.execution.data.file>${project.build.directory}/coverage-reports/jacoco-ut.exec
@@ -30,6 +30,13 @@
         <name>Talanlabs</name>
         <url>http://www.talanlabs.com</url>
     </organization>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <developers>
         <developer>
             <name>Gabriel Allaigre</name>
