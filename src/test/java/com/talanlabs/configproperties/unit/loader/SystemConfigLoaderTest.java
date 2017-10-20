@@ -1,4 +1,4 @@
-package com.talanlabs.configproperties.unit;
+package com.talanlabs.configproperties.unit.loader;
 
 import com.talanlabs.configproperties.loader.SystemConfigLoader;
 import org.assertj.core.api.Assertions;

@@ -1,40 +1,17 @@
 package com.talanlabs.configproperties.loader;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.File;
-import java.io.FileReader;
-import java.io.Reader;
-import java.util.Properties;
+import java.net.MalformedURLException;
 
-public class FileConfigLoader implements IConfigLoader {
-
-    private static final Logger LOG = LogManager.getLogger(FileConfigLoader.class);
-
-    private final File file;
+public class FileConfigLoader extends URLConfigLoader {
 
     public FileConfigLoader(File file) {
         super();
 
-        this.file = file;
-    }
-
-    @Override
-    public Properties readProperties() {
-        if (file != null && file.exists()) {
-            Properties properties = new Properties();
-            LOG.info("Read config file in external " + file);
-            try {
-                try (Reader reader = new FileReader(file)) {
-                    properties.load(reader);
-                }
-            } catch (Exception e) {
-                LOG.error("Not read external file " + file, e);
-                throw new LoaderReadException("Not read external file " + file, e);
-            }
-            return properties;
+        try {
+            setUrl(file != null ? file.toURI().toURL() : null);
+        } catch (MalformedURLException e) {
+            throw new LoaderReadException("Failed to read file " + file, e);
         }
-        return null;
     }
 }

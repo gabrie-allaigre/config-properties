@@ -2,7 +2,7 @@
  
 ## Description
 
-Simplifie la configuration à partir d'un fichier interne ou externe de `properties` vers un Component Bean.
+Simplifie la configuration à partir d'un fichier interne ou externe de `properties` ou `yaml` vers un Component Bean.
 
 ## Configuration
 
@@ -12,7 +12,7 @@ Ajouter dans le pom.xml :
 <dependency>
 	<groupId>com.talanlabs</groupId>
 	<artifactId>config-properties</artifactId>
-	<version>1.0.2</version>
+	<version>1.1.0</version>
 </dependency>
 ```
 
@@ -79,7 +79,27 @@ Différentes options disponible dans le builder
 |Methode|Description|
 |------|-----------|
 | prefix | Permet de définir un préfix dans les properties           |
-| rtextConfiguration | Permet de définir une configuration pour rtext          |
+| rtextConfiguration | Permet de définir une configuration pour rtext. Il est utilisé pour transformer le string et object         |
+
+Possible de définir une alternative à une clef, par exemple
+
+```java
+public interface IConfig extends IComponent {
+
+    IAuth getAuth();
+
+    interface IAuth extends IComponent {
+    
+        @PropertyKey(alternative = "HOST")
+        String getHost();
+    
+    }
+}
+```
+
+Soit vous avez une clef `auth.host` soit une clef `HOST`. Utile pour les variables d'environement.
+
+Les `Collection` et les `Map` sont gérées, soit sur une seule ligne ou soit en plusieurs lignes.
 
 ### Manuel
 
@@ -191,6 +211,10 @@ server.booleans.Fake=false
 | Enum, ... | ConfigProperty.toGeneric |
 | List<E> | CollectionConfigProperty.toList |
 | Set<E> | CollectionConfigProperty.toSet |
+| Collection<E> | CollectionConfigProperty.toGeneric |
+| List<E> | CollectionMultiLinesConfigProperty.toList |
+| Set<E> | CollectionMultiLinesConfigProperty.toSet |
+| Collection<E> | CollectionMultiLinesConfigProperty.toGeneric |
 | String[] | ArrayConfigProperty.toArrayString |
 | Integer[] | ArrayConfigProperty.toArrayInteger |
 | Long[] | ArrayConfigProperty.toArrayLong |
@@ -198,6 +222,13 @@ server.booleans.Fake=false
 | Float[] | ArrayConfigProperty.toArrayFloat |
 | Boolean[] | ArrayConfigProperty.toArrayBoolean |
 | E[] | ArrayConfigProperty.toArrayGeneric |
+| String[] | ArrayMultiLinesConfigProperty.toArrayString |
+| Integer[] | ArrayMultiLinesConfigProperty.toArrayInteger |
+| Long[] | ArrayMultiLinesConfigProperty.toArrayLong |
+| Double[] | ArrayMultiLinesConfigProperty.toArrayDouble |
+| Float[] | ArrayMultiLinesConfigProperty.toArrayFloat |
+| Boolean[] | ArrayMultiLinesConfigProperty.toArrayBoolean |
+| E[] | ArrayMultiLinesConfigProperty.toArrayGeneric |
 | Map<E,F> | MapConfigProperty.toHashMap |
 | Properties | PropertiesConfigProperty |
 
