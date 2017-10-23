@@ -4,9 +4,6 @@ import java.util.Properties;
 
 public class DefaultConfigLoader implements IConfigLoader {
 
-    public static final String DEFAULT_SYSTEM_PROPERTY_NAME = SystemConfigLoader.DEFAULT_SYSTEM_PROPERTY_NAME;
-    public static final String DEFAULT_INTERNAL_PROPERTIES_PATH = ResourceConfigLoader.DEFAULT_INTERNAL_PROPERTIES_PATH;
-
     private final IConfigLoader compositeConfigLoader;
 
     public DefaultConfigLoader(String systemPropertyName, String internalPropertiesPath) {
@@ -41,10 +38,10 @@ public class DefaultConfigLoader implements IConfigLoader {
 
         public DefaultConfigLoader build() {
             if (systemPropertyName == null) {
-                systemPropertyName = DEFAULT_SYSTEM_PROPERTY_NAME;
+                systemPropertyName = SystemConfigLoader.DEFAULT_SYSTEM_PROPERTY_NAME;
             }
             if (internalPropertiesPath == null) {
-                internalPropertiesPath = DEFAULT_INTERNAL_PROPERTIES_PATH;
+                internalPropertiesPath = ResourceConfigLoader.DEFAULT_INTERNAL_PROPERTIES_PATH;
             }
             return new DefaultConfigLoader(systemPropertyName, internalPropertiesPath);
         }

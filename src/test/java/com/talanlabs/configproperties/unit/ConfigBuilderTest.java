@@ -1,11 +1,9 @@
 package com.talanlabs.configproperties.unit;
 
 import com.talanlabs.configproperties.loader.DefaultConfigLoader;
-import com.talanlabs.configproperties.properties.ArrayConfigProperty;
-import com.talanlabs.configproperties.properties.CollectionConfigProperty;
-import com.talanlabs.configproperties.properties.ConfigProperty;
-import com.talanlabs.configproperties.properties.MapConfigProperty;
-import com.talanlabs.configproperties.properties.PropertiesConfigProperty;
+import com.talanlabs.configproperties.properties.*;
+import com.talanlabs.configproperties.unit.properties.ConfigFields;
+import com.talanlabs.configproperties.unit.properties.IConfig;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.Test;
 
@@ -63,7 +61,7 @@ public class ConfigBuilderTest {
     public void testPropertiesConfigProviderRead() {
         com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(new PropertiesConfigProperty(ConfigFields.properties));
-        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("propertiesconfig.properties").build());
+        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/propertiesconfig.properties").build());
         IConfig config = builder.build();
 
         BDDAssertions.then(config.getProperties()).isNotNull();
@@ -76,7 +74,7 @@ public class ConfigBuilderTest {
         builder.configProperty(MapConfigProperty.toHashMap("server.groups", ConfigFields.groupMap, ConfigProperty.STRING_FROM_STRING, ConfigProperty.STRING_FROM_STRING, null));
         builder.configProperty(MapConfigProperty.toHashMap("server.types", ConfigFields.typeMap, ConfigProperty.INTEGER_FROM_STRING, IConfig.ServiceImplType::valueOf, null));
         builder.configProperty(MapConfigProperty.toHashMap("server.booleans", ConfigFields.booleanMap, IConfig.ServiceImplType::valueOf, ConfigProperty.BOOLEAN_FROM_STRING, null));
-        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("mapconfig.properties").build());
+        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/mapconfig.properties").build());
         IConfig config = builder.build();
 
         BDDAssertions.then(config.getGroupMap()).containsEntry("ADMIN", "gaby").containsEntry("USER", "sandra");
@@ -124,5 +122,27 @@ public class ConfigBuilderTest {
             }
             System.getProperties().remove("config");
         }
+    }
+
+    @Test
+    public void testCollection2ConfigProviderRead() {
+        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/col-config.properties").build());
+        builder.configProperty(CollectionMultiLinesConfigProperty.toList("server.groups", ConfigFields.groups, ConfigProperty.STRING_FROM_STRING, null),
+                CollectionMultiLinesConfigProperty.toSet("server.enums", ConfigFields.enums, ConfigProperty.STRING_FROM_STRING, null));
+        IConfig config = builder.build();
+
+        BDDAssertions.then(config.getGroups()).containsExactly("admin", "user");
+        BDDAssertions.then(config.getEnums()).containsExactlyInAnyOrder("FIRST", "SECOND");
+    }
+
+    @Test
+    public void testArray2ConfigProviderRead() {
+        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/array-config.properties").build());
+        builder.configProperty(ArrayMultiLinesConfigProperty.toArrayString("server.roles", ConfigFields.roles, null));
+        IConfig config = builder.build();
+
+        BDDAssertions.then(config.getRoles()).containsExactly("admin", "user");
     }
 }

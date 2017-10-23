@@ -69,20 +69,20 @@ public class MapConfigProperty<E, F> implements IConfigProperty<Map<E, F>> {
      * </pre>
      */
     public static <E, F> MapConfigProperty<E, F> toHashMap(String key, String propertyName, IFromString<E> keyFromString, IFromString<F> valueFromString, Map<E, F> defaultValue) {
-        return new MapConfigProperty<E, F>(key, propertyName, HashMap::new, keyFromString, valueFromString, defaultValue);
+        return new MapConfigProperty<>(key, propertyName, HashMap::new, keyFromString, valueFromString, defaultValue);
     }
 
     @Override
     public Map<E, F> setProperty(Properties properties, IComponent component) {
-        Map<E, F> map = properties.stringPropertyNames().stream().filter(p -> p.startsWith(key + separator) && p.length() > (key.length() + separator.length())).map(p -> set(properties, p))
+        Properties sp = ConfigHelper.extractProperties(properties, key + separator);
+        Map<E, F> map = sp.stringPropertyNames().stream().map(p -> set(sp, p))
                 .collect(supplier, (m, e) -> m.put(e.getKey(), e.getValue()), Map::putAll);
         ConfigHelper.setPropertyValue(component, propertyName, map);
         return map;
     }
 
     private Map.Entry<E, F> set(Properties properties, String p) {
-        String s1 = p.substring(key.length() + separator.length());
-        E k = keyFromString.fromString(s1);
+        E k = keyFromString.fromString(p);
 
         String s2 = properties.getProperty(p);
         F v;

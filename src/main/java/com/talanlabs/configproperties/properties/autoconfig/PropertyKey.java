@@ -9,6 +9,23 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface PropertyKey {
 
-    String value();
+    /**
+     * @return Change name
+     */
+    String value() default "";
 
+    /**
+     * @return Change full key
+     */
+    String alternative() default "";
+
+    /**
+     * @return AutoConfig ignore field
+     */
+    boolean ignore() default false;
+
+    /**
+     * @return if true, alternative replace all value
+     */
+    boolean replaceAll() default false;
 }

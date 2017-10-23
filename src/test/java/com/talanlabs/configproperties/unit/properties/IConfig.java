@@ -1,4 +1,4 @@
-package com.talanlabs.configproperties.unit;
+package com.talanlabs.configproperties.unit.properties;
 
 import com.talanlabs.component.IComponent;
 import com.talanlabs.component.annotation.ComponentBean;

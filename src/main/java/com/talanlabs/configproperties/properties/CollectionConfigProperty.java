@@ -2,12 +2,7 @@ package com.talanlabs.configproperties.properties;
 
 import com.talanlabs.configproperties.utils.IFromString;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -46,16 +41,24 @@ public class CollectionConfigProperty<E, F extends Collection<E>> extends Config
      * Config property for List value ex : 1,2,3,4,5
      * Default separator ","
      */
-    public static <E> ConfigProperty<List<E>> toList(String key, String propertyName, IFromString<E> elementFromString, List<E> defaultValue) {
-        return new CollectionConfigProperty<E, List<E>>(key, propertyName, ArrayList::new, elementFromString, defaultValue);
+    public static <E> CollectionConfigProperty<E, List<E>> toList(String key, String propertyName, IFromString<E> elementFromString, List<E> defaultValue) {
+        return new CollectionConfigProperty<>(key, propertyName, ArrayList::new, elementFromString, defaultValue);
     }
 
     /**
      * Config property for Set value ex : 1,2,3,4,5
      * Default separator ","
      */
-    public static <E> ConfigProperty<Set<E>> toSet(String key, String propertyName, IFromString<E> elementFromString, Set<E> defaultValue) {
-        return new CollectionConfigProperty<E, Set<E>>(key, propertyName, HashSet::new, elementFromString, defaultValue);
+    public static <E> CollectionConfigProperty<E, Set<E>> toSet(String key, String propertyName, IFromString<E> elementFromString, Set<E> defaultValue) {
+        return new CollectionConfigProperty<>(key, propertyName, HashSet::new, elementFromString, defaultValue);
+    }
+
+    /**
+     * Config property for Generic value ex : 1,2,3,4,5
+     * Default separator ","
+     */
+    public static <E, F extends Collection<E>> CollectionConfigProperty<E, F> toGeneric(String key, String propertyName, Supplier<F> supplier, IFromString<E> elementFromString, F defaultValue) {
+        return new CollectionConfigProperty<>(key, propertyName, supplier, elementFromString, defaultValue);
     }
 
     public static class CollectionFromString<E, F extends Collection<E>> implements IFromString<F> {

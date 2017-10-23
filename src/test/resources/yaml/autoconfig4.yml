@@ -1,0 +1,10 @@
+server:
+  groupMap:
+    ADMIN: gaby
+    USER: sandra
+  typeMap:
+    1: NomadeServlet
+    2: Fake
+  booleanMap:
+    NomadeServlet: true
+    Fake: false

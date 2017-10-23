@@ -1,4 +1,4 @@
-package com.talanlabs.configproperties.unit;
+package com.talanlabs.configproperties.unit.loader;
 
 import com.talanlabs.configproperties.loader.ResourceConfigLoader;
 import org.assertj.core.api.Assertions;
@@ -10,11 +10,11 @@ public class ResourceConfigLoaderTest {
 
     @Test
     public void testDefaultResourceConfigLoader() throws IOException {
-        Assertions.assertThat(new ResourceConfigLoader("config.properties").readProperties()).isNotNull();
+        Assertions.assertThat(new ResourceConfigLoader("config.properties").readProperties()).isNotNull().isNotEmpty();
     }
 
     @Test
     public void testNullResourceConfigLoader() throws IOException {
-        Assertions.assertThat(Assertions.catchThrowable(() -> new ResourceConfigLoader("null.properties").readProperties())).isExactlyInstanceOf(IllegalArgumentException.class);
+        Assertions.assertThat(new ResourceConfigLoader("null.properties").readProperties()).isNull();
     }
 }
