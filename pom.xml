@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.talanlabs</groupId>
   <artifactId>config-properties</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <name>Config Properties</name>
   <description>Easy file config</description>
   <url>http://www.talanlabs.com</url>
