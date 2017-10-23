@@ -109,6 +109,9 @@ public class ArrayMultiLinesConfigProperty<E> implements IConfigProperty<E[]> {
     @Override
     public E[] setProperty(Properties properties, IComponent component) {
         Properties sp = ConfigHelper.extractProperties(properties, key + separator);
+        if (sp.isEmpty()) {
+            return defaultValue;
+        }
         E[] array = sp.stringPropertyNames().stream().sorted().map(sp::getProperty).map(elementFromString::fromString).toArray(intFunction);
         ConfigHelper.setPropertyValue(component, propertyName, array);
         return array;

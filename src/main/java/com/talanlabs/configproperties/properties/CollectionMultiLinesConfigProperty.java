@@ -86,8 +86,10 @@ public class CollectionMultiLinesConfigProperty<E, F extends Collection<E>> impl
 
     @Override
     public F setProperty(Properties properties, IComponent component) {
-        System.out.println("ici " + properties);
         Properties sp = ConfigHelper.extractProperties(properties, key + separator);
+        if (sp.isEmpty()) {
+            return defaultValue;
+        }
         F col = sp.stringPropertyNames().stream().sorted().map(sp::getProperty).map(elementFromString::fromString).collect(Collectors.toCollection(supplier));
         ConfigHelper.setPropertyValue(component, propertyName, col);
         return col;
