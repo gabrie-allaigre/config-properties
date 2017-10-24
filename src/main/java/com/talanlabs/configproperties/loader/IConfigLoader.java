@@ -19,10 +19,11 @@ public interface IConfigLoader {
     /**
      * Get a config loader with main args. Use StaticGetArgs.getINSTANCE().setArgs
      *
+     * @param args argument
      * @return a config loader
      */
-    static IConfigLoader properties() {
-        return new ArgsConfigLoader();
+    static IConfigLoader args(String[] args) {
+        return new ArgsConfigLoader(args);
     }
 
     /**

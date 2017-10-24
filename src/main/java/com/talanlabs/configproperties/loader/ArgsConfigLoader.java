@@ -10,21 +10,17 @@ public class ArgsConfigLoader implements IConfigLoader {
     private static final String START_ARG = "--";
     private static final String SEPARATOR = "=";
 
-    private final IGetArgs getArgs;
+    private final String[] args;
 
-    public ArgsConfigLoader() {
-        this(StaticGetArgs.getINSTANCE());
-    }
-
-    public ArgsConfigLoader(IGetArgs getArgs) {
+    public ArgsConfigLoader(String[] args) {
         super();
 
-        this.getArgs = getArgs;
+        this.args = args;
     }
+
 
     @Override
     public Properties readProperties() {
-        String[] args = getArgs != null ? getArgs.getArgs() : null;
         if (args != null) {
             Properties properties = new Properties();
 
@@ -40,43 +36,5 @@ public class ArgsConfigLoader implements IConfigLoader {
         String key = arg.substring(START_ARG.length(), i);
         String value = arg.substring(i + 1);
         return Pair.of(key, value);
-    }
-
-    public interface IGetArgs {
-
-        /**
-         * Use only args with format --server.mail=test@test.com
-         */
-        String[] getArgs();
-
-    }
-
-    public static class StaticGetArgs implements IGetArgs {
-
-        private static StaticGetArgs INSTANCE;
-        private String[] args;
-
-        private StaticGetArgs() {
-            super();
-        }
-
-        public static synchronized StaticGetArgs getINSTANCE() {
-            if (INSTANCE == null) {
-                INSTANCE = new StaticGetArgs();
-            }
-            return INSTANCE;
-        }
-
-        /**
-         * Set args, Use only args with format --server.mail=test@test.com
-         */
-        public void setArgs(String[] args) {
-            this.args = args;
-        }
-
-        @Override
-        public String[] getArgs() {
-            return args;
-        }
     }
 }

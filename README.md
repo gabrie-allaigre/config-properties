@@ -2,25 +2,25 @@
  
 ## Description
 
-Simplifie la configuration à partir d'un fichier interne ou externe de `properties` ou `yaml` vers un Component Bean.
+Simplify configuration with file internal or external `properties` or `yaml` to a Component Bean (https://github.com/gabrie-allaigre/component-bean)
 
 ## Configuration
 
-Ajouter dans le pom.xml :
+Add in pom.xml :
 
 ```xml
 <dependency>
 	<groupId>com.talanlabs</groupId>
 	<artifactId>config-properties</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.2</version>
 </dependency>
 ```
 
-## Utilisation
+## Use
 
-### Automatique
+### Auto
 
-Créer un objet component de configuration automatiquement.
+Create component:
 
 ```java
 @ComponentBean
@@ -40,30 +40,45 @@ public interface IConfig extends IComponent {
 
     ISubConfig getSubConfig();
 
+    List<String> getRoles();
+    
+    Map<String,String> getProps();
+
     enum Type {
         NomadeServlet, Fake, RusService
     }
 
-    @ComponentBean
     interface ISubConfig extends IComponent {
 
+        @PropertyKey(alternative="SMTP_HOST")
         String getSmtpHost();
 
+        @PropertyKey(alternative="SMTP_PORT")
         Integer getSmtpPort();
 
     }   
 }
 ```
 
-Créer la config :
+Create a `config.yml` in resources
 
-```java
-ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
-builder.configProperty(AutoConfigProperty.newBuilder().build());
-IConfig config = builder.build();
+```yaml
+name: Toto
+type: NomadeServlet
+size: 10
+toto: 15
+subConfig:
+  smtpHost: rien.com
+  smtpPort: 22
+roles:
+  - admin
+  - simple
+props:
+  sqlVersion: 2
+  class: SQL.class
 ```
 
-Le fichier properties correspondant :
+or `config.properties`
 
 ```properties
 name=Toto
@@ -72,134 +87,91 @@ size=10
 toto=15
 subConfig.smtpHost=rien.com
 subConfig.smtpPort=22
+roles.1=admin
+roles.2=simple
+props.sqlVersion=2
+props.class=SQL.class
 ```
 
-Différentes options disponible dans le builder
-
-|Methode|Description|
-|------|-----------|
-| prefix | Permet de définir un préfix dans les properties           |
-| rtextConfiguration | Permet de définir une configuration pour rtext. Il est utilisé pour transformer le string et object         |
-
-Possible de définir une alternative à une clef, par exemple
-
-```java
-public interface IConfig extends IComponent {
-
-    IAuth getAuth();
-
-    interface IAuth extends IComponent {
-    
-        @PropertyKey(alternative = "HOST")
-        String getHost();
-    
-    }
-}
-```
-
-Soit vous avez une clef `auth.host` soit une clef `HOST`. Utile pour les variables d'environement.
-
-Les `Collection` et les `Map` sont gérées, soit sur une seule ligne ou soit en plusieurs lignes.
-
-### Manuel
-
-Créer un objet component de configuration.
-
-```java
-@ComponentBean
-public interface IConfig extends IComponent {
-
-    String getNomadeSerlvetUrl();
-
-    ServiceImplType getServiceImplType();
-
-    long getMaxSizeUploadAvarieImage();
-
-    Path getPublicAttachmentsDirectory();
-
-    IMailConfig getMailConfig();
-
-    List<String> getGroups();
-
-    String[] getRoles();
-
-    Set<String> getEnums();
-
-    Map<ServiceImplType, Boolean> getBooleanMap();
-
-    enum ServiceImplType {
-        NomadeServlet, Fake, RusService
-    }
-    
-    @ComponentBean
-    public interface IMailConfig extends IComponent {
-    
-        String getSmptHost();
-    
-        Integer getSmptPort();
-    
-    }
-}
-```
-
-Créer la config :
+Create config builder :
 
 ```java
 ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
-builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
-        ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake));
-builder.configProperty(ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */));
-builder.configProperty(ConfigProperty.toGeneric("server.public-attachments-path", ConfigFields.publicAttachmentsDirectory, Paths::get, Paths.get("public/attachments/")));
-builder.configProperty(ConfigProperty.toString("server.mail.smtp.host", ConfigFields.mailConfig().dot().smptHost().name(), null),
-        ConfigProperty.toInteger("server.mail.smtp.port", ConfigFields.mailConfig().dot().smptPort().name(), null));
-builder.configProperty(CollectionConfigProperty.toList("server.groups", ConfigFields.groups, ConfigProperty.STRING_FROM_STRING, null),
-        CollectionConfigProperty.toSet("server.enums", ConfigFields.enums, ConfigProperty.STRING_FROM_STRING, null));
-builder.configProperty(ArrayConfigProperty.toArrayString("server.roles", ConfigFields.roles,  null));
-builder.configProperty(MapConfigProperty.toHashMap("server.booleans", ConfigFields.booleanMap, IConfig.ServiceImplType::valueOf, ConfigProperty.BOOLEAN_FROM_STRING, null));
+builder.configProperty(AutoConfigProperty.newBuilder().build());
 IConfig config = builder.build();
 ```
 
-Par défault, il lit dans la variables système `config.file` pour trouver le chemin du fichier ou en interne dans `config.properties` à partir de la racine.
+> By default, find first not null file in resources `config.properties` or `config.yml` or get file in environnement variable `config.file`, and compose with system properties and environnement variables.
 
-Le loader peut être modifier, pour changer le default :
- 
-``` java
-builder.configLoader(DefaultConfigLoader.newBuilder().systemPropertyName("configuration").internalPropertiesPath("others/others.properties").build());
+Options in builder `AutoConfigProperty`
+
+|Method|Description|
+|------|-----------|
+| prefix | Add prefix all prroperties           |
+| rtextConfiguration | Engine configuration to convert `String` to `Object`. https://github.com/gabrie-allaigre/rtext |
+
+#### Annotation
+
+- `@DefaultPropertyValue` set default value if not found
+
+- `PropertyKey`
+
+|Method|Description|
+|------|-----------|
+| value | Change name of property |
+| alternative | Add other full name, use for environnement variable. Ex: `subConfig.smtpHost` or `SMTP_HOST` |
+| ignore | AutoConfig ignore field |
+| replaceAll | Only for List or Map, replace or not all value if exist alternative |
+
+### Manuel
+
+Create config builder:
+
+```java
+ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
+builder.configProperty(ConfigProperty.toString("name", ConfigFields.name, null),
+        ConfigProperty.toGeneric("type", ConfigFields.type, IConfig.Type::valueOf, IConfig.Type.Fake));
+builder.configProperty(ConfigProperty.toLong("size", ConfigFields.size, 0));
+builder.configProperty(ConfigProperty.toInt("width", ConfigFields.size, 51));
+builder.configProperty(ConfigProperty.toInt("toto", ConfigFields.titi,0);
+builder.configProperty(ConfigProperty.toString("subConfig.smtpHost", ConfigFields.subConfig().dot().smptHost().name(), null),
+        ConfigProperty.toInteger("subConfig.smtpPort", ConfigFields.subConfig().dot().smptPort().name(), null));
+builder.configProperty(CollectionMultiLinesConfigProperty.toList("roles", ConfigFields.roles, ConfigProperty.STRING_FROM_STRING, null));
+builder.configProperty(MapConfigProperty.toHashMap("props", ConfigFields.booleanMap, ConfigProperty.STRING_FROM_STRING, ConfigProperty.STRING_FROM_STRING, null));
+IConfig config = builder.build();
 ```
 
-Différents `Config Loader` :
+### Loader
 
-``` java
-IConfigLoader.system("property"); // Nom de la variable système
-IConfigLoader.url("http://toto.com/config.properties"); // URL vers la config 
-IConfigLoader.resource("config.properties"); // Chemin interne
-IConfigLoader.file("C:/config.properties"); // Chemin système
+Default loader is:
+
+```java
+ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
+builder.configLoader(
+    IConfigLoader.compose(
+        IConfigLoader.firstNotNull(
+            IConfigLoader.system("config.file"),
+            IConfigLoader.resource("config.properties"),
+            IConfigLoader.resource("config.yml")
+        ),
+        IConfigLoader.systemProperties(),
+        IConfigLoader.envProperties())
+    );
 ```
 
-Possibiliter de les cumuler :
+|Method|Description|
+|------|-----------|
+| IConfigLoader.properties(${properties}) | With `Properties` |
+| IConfigLoader.resource(${path}) | Load file in resource, null if not exist |
+| IConfigLoader.system(${property}) | Get a property in system properties, and get file if exist |
+| IConfigLoader.systemProperties() | Load file in resource, null if not exist |
+| IConfigLoader.envProperties() | Load file in resource, null if not exist |
+| IConfigLoader.file(${file}) | Load file |
+| IConfigLoader.url(${url}) | Load url |
+| IConfigLoader.compose(${loaders}) | Merge all loaderr |
+| IConfigLoader.firstNotNull(${loaders}) | Get a first loader to get not null properties |
 
-``` java
-IConfigLoader.compose(IConfigLoader.system("property"),IConfigLoader.resource("config.properties")); // Additione tous les propreties trouvées
-IConfigLoader.firstNotNull(IConfigLoader.system("property"),IConfigLoader.resource("config.properties")); // Le premier non null
-
-```
-
-Le fichier `.properties` contient la liste des clefs valeurs.
-
-``` properties
-# Exemple Simple
-server.number=10
-server.mail.smtp.host=smpt.gmail.com
-
-# Exemple List, par défaut séparateur ","
-server.groups=admin,user
-
-# Exemple de Map, la clef est le text après server.booleans.
-server.booleans.NomadeServlet=true
-server.booleans.Fake=false
-```
-
-## Détails des types définits
+## Details of the defined types
 
 | Type | IConfigProperty |
 |---|------------|
@@ -232,4 +204,4 @@ server.booleans.Fake=false
 | Map<E,F> | MapConfigProperty.toHashMap |
 | Properties | PropertiesConfigProperty |
 
-**Vous pouvez ajouter d'autres types en créant une class implementant un `IConfigProperty`**
+**You can add other types by creating a class implementing an `IConfigProperty`**

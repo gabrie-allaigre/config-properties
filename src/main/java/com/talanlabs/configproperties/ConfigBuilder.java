@@ -2,10 +2,7 @@ package com.talanlabs.configproperties;
 
 import com.talanlabs.component.IComponent;
 import com.talanlabs.component.factory.ComponentFactory;
-import com.talanlabs.configproperties.loader.FirstNotNullConfigLoader;
 import com.talanlabs.configproperties.loader.IConfigLoader;
-import com.talanlabs.configproperties.loader.ResourceConfigLoader;
-import com.talanlabs.configproperties.loader.SystemConfigLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -63,7 +60,9 @@ public class ConfigBuilder<E extends IComponent> {
      */
     public E build() {
         if (configLoader == null) {
-            configLoader = new FirstNotNullConfigLoader(new SystemConfigLoader(), new ResourceConfigLoader("config.properties"), new ResourceConfigLoader("config.yml"));
+            configLoader = IConfigLoader.compose(IConfigLoader.firstNotNull(IConfigLoader.system("config.file"),
+                    IConfigLoader.resource("config.properties"), IConfigLoader.resource("config.yml")),
+                    IConfigLoader.systemProperties(), IConfigLoader.envProperties());
         }
 
         Properties properties = configLoader.readProperties();
