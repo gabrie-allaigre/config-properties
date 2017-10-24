@@ -39,7 +39,7 @@ public class ConfigBuilder<E extends IComponent> {
     /**
      * @param configLoader change config loader, default is DefaultConfigLoader
      */
-    public ConfigBuilder configLoader(IConfigLoader configLoader) {
+    public ConfigBuilder<E> configLoader(IConfigLoader configLoader) {
         this.configLoader = configLoader;
         return this;
     }
@@ -47,7 +47,7 @@ public class ConfigBuilder<E extends IComponent> {
     /**
      * Add config property
      */
-    public ConfigBuilder configProperty(IConfigProperty<?> configProperty, IConfigProperty<?>... configProperties) {
+    public ConfigBuilder<E> configProperty(IConfigProperty<?> configProperty, IConfigProperty<?>... configProperties) {
         this.configProperties.add(configProperty);
         if (configProperties != null) {
             this.configProperties.addAll(Arrays.asList(configProperties));
