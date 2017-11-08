@@ -9,7 +9,7 @@ import java.io.IOException;
 public class EnvPropertiesConfigLoaderTest {
 
     @Test
-    public void testDefaultSystemPropertiesConfigLoader() throws IOException {
+    public void testNotNull() throws IOException {
         EnvPropertiesConfigLoader envPropertiesConfigLoader = new EnvPropertiesConfigLoader();
         Assertions.assertThat(envPropertiesConfigLoader.readProperties()).isNotNull();
     }
