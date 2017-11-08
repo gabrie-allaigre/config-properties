@@ -12,7 +12,7 @@ Add in pom.xml :
 <dependency>
 	<groupId>com.talanlabs</groupId>
 	<artifactId>config-properties</artifactId>
-	<version>1.1.2</version>
+	<version>1.1.4</version>
 </dependency>
 ```
 
