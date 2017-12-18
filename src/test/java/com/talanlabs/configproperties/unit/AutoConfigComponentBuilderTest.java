@@ -1,5 +1,6 @@
 package com.talanlabs.configproperties.unit;
 
+import com.talanlabs.configproperties.ComponentConfigBuilder;
 import com.talanlabs.configproperties.ConfigBuilder;
 import com.talanlabs.configproperties.loader.DefaultConfigLoader;
 import com.talanlabs.configproperties.properties.AutoConfigProperty;
@@ -7,11 +8,11 @@ import com.talanlabs.configproperties.unit.properties.IAutoConfig;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.Test;
 
-public class AutoConfigBuilderTest {
+public class AutoConfigComponentBuilderTest {
 
     @Test
     public void testAutoConfigProperties() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/autoconfig1.properties").build());
         IAutoConfig config = builder.build();
@@ -29,7 +30,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigYaml() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("yaml/autoconfig1.yml").build());
         IAutoConfig config = builder.build();
@@ -47,7 +48,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigPrefixProperties() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().prefix("server").build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/autoconfig2.properties").build());
         IAutoConfig config = builder.build();
@@ -68,7 +69,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigPrefixYaml() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().prefix("server").build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("yaml/autoconfig2.yml").build());
         IAutoConfig config = builder.build();
@@ -84,7 +85,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigAltProperties() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().prefix("server").build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/autoconfig4.properties").build());
         IAutoConfig config = builder.build();
@@ -98,7 +99,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigListProperties() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().prefix("server").build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/autoconfig5.properties").build());
         IAutoConfig config = builder.build();
@@ -110,7 +111,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigMapProperties() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().prefix("server").build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/autoconfig6.properties").build());
         IAutoConfig config = builder.build();
@@ -122,7 +123,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigMapAltProperties() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().prefix("server").build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/autoconfig7.properties").build());
         IAutoConfig config = builder.build();
@@ -133,7 +134,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigListYaml() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().prefix("server").build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("yaml/autoconfig3.yml").build());
         IAutoConfig config = builder.build();
@@ -146,7 +147,7 @@ public class AutoConfigBuilderTest {
 
     @Test
     public void testAutoConfigMapYaml() {
-        ConfigBuilder<IAutoConfig> builder = ConfigBuilder.newBuilder(IAutoConfig.class);
+        ComponentConfigBuilder<IAutoConfig> builder = ComponentConfigBuilder.newBuilder(IAutoConfig.class);
         builder.configProperty(AutoConfigProperty.newBuilder().prefix("server").build());
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("yaml/autoconfig4.yml").build());
         IAutoConfig config = builder.build();

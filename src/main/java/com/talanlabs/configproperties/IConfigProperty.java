@@ -1,17 +1,31 @@
 package com.talanlabs.configproperties;
 
-import com.talanlabs.component.IComponent;
+import com.talanlabs.configproperties.meta.MetaInfoBean;
 
 import java.util.Properties;
 
-public interface IConfigProperty<E> {
+public interface IConfigProperty {
 
     /**
      * Set propertie in component
      *
+     * @param context    context
      * @param properties current properties
-     * @param component  to set in
-     * @return
      */
-    E setProperty(Properties properties, IComponent component);
+    void setProperty(Context<?> context, Properties properties);
+
+    interface Context<E> {
+
+        /**
+         * Set value in component, create sub component
+         *
+         * @param propertyName property with dot
+         * @param value        value of property
+         */
+        void setPropertyValue(String propertyName, Object value);
+
+        MetaInfoBean<E> getMetaInfoBean();
+
+        <F> MetaInfoBean<F> forBeanClass(Class<F> beanClass);
+    }
 }

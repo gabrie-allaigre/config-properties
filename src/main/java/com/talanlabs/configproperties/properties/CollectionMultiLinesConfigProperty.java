@@ -1,15 +1,19 @@
 package com.talanlabs.configproperties.properties;
 
-import com.talanlabs.component.IComponent;
 import com.talanlabs.configproperties.IConfigProperty;
 import com.talanlabs.configproperties.utils.ConfigHelper;
 import com.talanlabs.configproperties.utils.IFromString;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class CollectionMultiLinesConfigProperty<E, F extends Collection<E>> implements IConfigProperty<F> {
+public class CollectionMultiLinesConfigProperty<E, F extends Collection<E>> implements IConfigProperty {
 
     public static final String DEFAULT_SEPARATOR = ".";
 
@@ -80,18 +84,20 @@ public class CollectionMultiLinesConfigProperty<E, F extends Collection<E>> impl
      * - *.2=tata
      * - *.3=titi
      */
-    public static <E, F extends Collection<E>> CollectionMultiLinesConfigProperty<E, F> toGeneric(String key, String propertyName, Supplier<F> supplier, IFromString<E> elementFromString, F defaultValue) {
+    public static <E, F extends Collection<E>> CollectionMultiLinesConfigProperty<E, F> toGeneric(String key, String propertyName, Supplier<F> supplier, IFromString<E> elementFromString,
+            F defaultValue) {
         return new CollectionMultiLinesConfigProperty<>(key, propertyName, supplier, elementFromString, defaultValue);
     }
 
     @Override
-    public F setProperty(Properties properties, IComponent component) {
+    public void setProperty(Context<?> context, Properties properties) {
         Properties sp = ConfigHelper.extractProperties(properties, key + separator);
+        F col;
         if (sp.isEmpty()) {
-            return defaultValue;
+            col = defaultValue;
+        } else {
+            col = sp.stringPropertyNames().stream().sorted().map(sp::getProperty).map(elementFromString::fromString).collect(Collectors.toCollection(supplier));
         }
-        F col = sp.stringPropertyNames().stream().sorted().map(sp::getProperty).map(elementFromString::fromString).collect(Collectors.toCollection(supplier));
-        ConfigHelper.setPropertyValue(component, propertyName, col);
-        return col;
+        context.setPropertyValue(propertyName, col);
     }
 }
