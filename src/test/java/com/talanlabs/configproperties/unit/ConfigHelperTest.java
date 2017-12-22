@@ -1,7 +1,5 @@
 package com.talanlabs.configproperties.unit;
 
-import com.talanlabs.component.factory.ComponentFactory;
-import com.talanlabs.configproperties.unit.properties.IConfig;
 import com.talanlabs.configproperties.utils.ConfigHelper;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.Test;
@@ -9,18 +7,6 @@ import org.junit.Test;
 import java.util.Properties;
 
 public class ConfigHelperTest {
-
-    @Test
-    public void testSetPropertyValue() {
-        IConfig config = ComponentFactory.getInstance().createInstance(IConfig.class);
-        ConfigHelper.setPropertyValue(config, "number", 10);
-        ConfigHelper.setPropertyValue(config, "roles", new String[] { "admin", "user" });
-        ConfigHelper.setPropertyValue(config, "mailConfig.smptHost", "rien.com");
-
-        BDDAssertions.then(config.getNumber()).isEqualTo(10);
-        BDDAssertions.then(config.getRoles()).containsExactly("admin", "user");
-        BDDAssertions.then(config.getMailConfig().getSmptHost()).isEqualTo("rien.com");
-    }
 
     @Test
     public void testExtractProperty() {

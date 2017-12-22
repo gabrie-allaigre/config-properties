@@ -1,10 +1,8 @@
 package com.talanlabs.configproperties.properties;
 
 import com.google.common.reflect.TypeToken;
-import com.talanlabs.component.IComponent;
-import com.talanlabs.component.factory.ComponentDescriptor;
-import com.talanlabs.component.factory.ComponentFactory;
 import com.talanlabs.configproperties.IConfigProperty;
+import com.talanlabs.configproperties.meta.MetaInfoBean;
 import com.talanlabs.configproperties.properties.autoconfig.DefaultPropertyValue;
 import com.talanlabs.configproperties.properties.autoconfig.PropertyKey;
 import com.talanlabs.configproperties.utils.ConfigHelper;
@@ -18,7 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class AutoConfigProperty implements IConfigProperty<IComponent> {
+public class AutoConfigProperty implements IConfigProperty {
 
     private String prefix;
     private Rtext rtext;
@@ -32,20 +30,18 @@ public class AutoConfigProperty implements IConfigProperty<IComponent> {
     }
 
     @Override
-    public IComponent setProperty(Properties properties, IComponent component) {
-        ComponentDescriptor<?> cd = ComponentFactory.getInstance().getDescriptor(component);
-        setProperty(properties, component, cd, "", prefix, false);
-        return component;
+    public void setProperty(Context<?> context, Properties properties) {
+        setProperty(context, properties, context.getMetaInfoBean(), "", prefix, false);
     }
 
-    private void setProperty(Properties properties, IComponent component, ComponentDescriptor<?> cd, String componentPrefix, String propertyPrefix, boolean ignoreDefault) {
-        cd.getPropertyDescriptors().forEach(pd -> set(properties, component, componentPrefix, propertyPrefix, pd, ignoreDefault));
+    private void setProperty(Context<?> context, Properties properties, MetaInfoBean<?> metaInfoBean, String beanPrefix, String propertyPrefix, boolean ignoreDefault) {
+        metaInfoBean.getPropertyNames().forEach(propertyName -> set(context, properties, beanPrefix, propertyPrefix, metaInfoBean, propertyName, ignoreDefault));
     }
 
-    private void set(Properties properties, IComponent component, String componentPrefix, String propertyPrefix, ComponentDescriptor.PropertyDescriptor pd, boolean ignoreDefault) {
-        String componentKey = (StringUtils.isNotBlank(componentPrefix) ? componentPrefix + "." : "") + pd.getPropertyName();
+    private void set(Context<?> context, Properties properties, String beanPrefix, String propertyPrefix, MetaInfoBean<?> metaInfoBean, String propertyName, boolean ignoreDefault) {
+        String beanKey = (StringUtils.isNotBlank(beanPrefix) ? beanPrefix + "." : "") + propertyName;
 
-        PropertyKey pk = pd.getMethod().getAnnotation(PropertyKey.class);
+        PropertyKey pk = metaInfoBean.getPropertyAnnotation(propertyName, PropertyKey.class);
         if (pk != null && pk.ignore()) {
             return;
         }
@@ -54,27 +50,28 @@ public class AutoConfigProperty implements IConfigProperty<IComponent> {
         if (pk != null && StringUtils.isNotEmpty(pk.value())) {
             propertyKey += pk.value();
         } else {
-            propertyKey += pd.getPropertyName();
+            propertyKey += propertyName;
         }
 
-        if (ComponentFactory.getInstance().isComponentType(pd.getPropertyType())) {
-            setComponent(properties, component, componentKey, propertyKey, pd, ignoreDefault, pk);
-        } else if (Properties.class.isAssignableFrom(pd.getPropertyClass())) {
-            ConfigHelper.setPropertyValue(component, componentKey, properties);
+        if (Properties.class.isAssignableFrom(metaInfoBean.getPropertyClass(propertyName))) {
+            context.setPropertyValue(beanKey, ConfigHelper.extractProperties(properties, StringUtils.isNotBlank(propertyPrefix) ? propertyPrefix : ""));
         } else {
-            setValue(properties, component, componentKey, propertyKey, pd, ignoreDefault, pk);
+            boolean res = setValue(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, ignoreDefault, pk);
+            if (!res && ConfigHelper.hasPrefixKey(properties, propertyKey + ".")) {
+                setBean(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, ignoreDefault, pk);
+            }
         }
     }
 
-    private void setComponent(Properties properties, IComponent component, String componentKey, String propertyKey, ComponentDescriptor.PropertyDescriptor pd, boolean ignoreDefault, PropertyKey pk) {
-        setProperty(properties, component, ComponentFactory.getInstance().getDescriptor(pd.getPropertyType()), componentKey, propertyKey, ignoreDefault);
+    private void setBean(Context<?> context, Properties properties, String beanKey, String propertyKey, MetaInfoBean<?> metaInfoBean, String propertyName, boolean ignoreDefault, PropertyKey pk) {
+        setProperty(context, properties, context.forBeanClass(metaInfoBean.getPropertyClass(propertyName)), beanKey, propertyKey, ignoreDefault);
 
         if (pk != null && StringUtils.isNotEmpty(pk.alternative())) {
-            setProperty(properties, component, ComponentFactory.getInstance().getDescriptor(pd.getPropertyType()), componentKey, pk.alternative(), true);
+            setProperty(context, properties, context.forBeanClass(metaInfoBean.getPropertyClass(propertyName)), beanKey, pk.alternative(), true);
         }
     }
 
-    private void setValue(Properties properties, IComponent component, String componentKey, String propertyKey, ComponentDescriptor.PropertyDescriptor pd, boolean ignoreDefault, PropertyKey pk) {
+    private boolean setValue(Context<?> context, Properties properties, String beanKey, String propertyKey, MetaInfoBean<?> metaInfoBean, String propertyName, boolean ignoreDefault, PropertyKey pk) {
         String value = null;
         if (pk != null && StringUtils.isNotEmpty(pk.alternative())) {
             value = properties.getProperty(pk.alternative());
@@ -82,19 +79,20 @@ public class AutoConfigProperty implements IConfigProperty<IComponent> {
         if (value == null) {
             if (properties.containsKey(propertyKey)) {
                 value = properties.getProperty(propertyKey);
-            } else if (pd.getMethod().isAnnotationPresent(DefaultPropertyValue.class) && !ignoreDefault) {
-                value = pd.getMethod().getAnnotation(DefaultPropertyValue.class).value();
+            } else if (metaInfoBean.isPropertyAnnotationPresent(propertyName, DefaultPropertyValue.class) && !ignoreDefault) {
+                value = metaInfoBean.getPropertyAnnotation(propertyName, DefaultPropertyValue.class).value();
             }
         }
 
         if (value != null) {
-            ConfigHelper.setPropertyValue(component, componentKey, rtext.fromText(value, pd.getPropertyType()));
+            context.setPropertyValue(beanKey, rtext.fromText(value, metaInfoBean.getPropertyType(propertyName)));
+            return true;
         } else {
-            setMultiValues(properties, component, componentKey, propertyKey, pd, pk);
+            return setMultiValues(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, pk);
         }
     }
 
-    private void setMultiValues(Properties properties, IComponent component, String componentKey, String propertyKey, ComponentDescriptor.PropertyDescriptor pd, PropertyKey pk) {
+    private boolean setMultiValues(Context<?> context, Properties properties, String beanKey, String propertyKey, MetaInfoBean<?> metaInfoBean, String propertyName, PropertyKey pk) {
         Properties sp = ConfigHelper.extractProperties(properties, propertyKey + ".");
         if (pk != null && StringUtils.isNotEmpty(pk.alternative())) {
             Properties sp1 = ConfigHelper.extractProperties(properties, pk.alternative() + ".");
@@ -106,37 +104,41 @@ public class AutoConfigProperty implements IConfigProperty<IComponent> {
         }
 
         if (sp != null && sp.size() > 0) {
-            TypeToken<?> tt = TypeToken.of(pd.getPropertyType());
+            TypeToken<?> tt = TypeToken.of(metaInfoBean.getPropertyType(propertyName));
             if (tt.isArray()) {
-                setArrayValue(tt, sp, component, componentKey);
+                setArrayValue(context, tt, sp, beanKey);
+                return true;
             } else if (tt.isSubtypeOf(Collection.class)) {
-                setCollectionValue(tt, sp, component, componentKey);
+                setCollectionValue(context, tt, sp, beanKey);
+                return true;
             } else if (tt.isSubtypeOf(Map.class)) {
-                setMapValue(tt, sp, component, componentKey);
+                setMapValue(context, tt, sp, beanKey);
+                return true;
             }
         }
+        return false;
     }
 
-    private void setArrayValue(TypeToken<?> tt, Properties sp, IComponent component, String componentKey) {
-        ConfigHelper.setPropertyValue(component, componentKey, sp.stringPropertyNames().stream().sorted().map(k -> rtext.fromText(sp.getProperty(k), tt.getComponentType().getType()))
+    private void setArrayValue(Context<?> context, TypeToken<?> tt, Properties properties, String beanKey) {
+        context.setPropertyValue(beanKey, properties.stringPropertyNames().stream().sorted().map(k -> rtext.fromText(properties.getProperty(k), tt.getComponentType().getType()))
                 .toArray(s -> (Object[]) Array.newInstance(tt.getComponentType().getRawType(), s)));
     }
 
-    private void setCollectionValue(TypeToken<?> tt, Properties sp, IComponent component, String componentKey) {
+    private void setCollectionValue(Context<?> context, TypeToken<?> tt, Properties properties, String beanKey) {
         TypeToken<?> tt2 = tt.resolveType(tt.getRawType().getTypeParameters()[0]);
-        Stream<Object> s = sp.stringPropertyNames().stream().sorted().map(k -> rtext.fromText(sp.getProperty(k), tt2.getType()));
+        Stream<Object> s = properties.stringPropertyNames().stream().sorted().map(k -> rtext.fromText(properties.getProperty(k), tt2.getType()));
         if (tt.isSubtypeOf(Set.class)) {
-            ConfigHelper.setPropertyValue(component, componentKey, s.collect(Collectors.toSet()));
+            context.setPropertyValue(beanKey, s.collect(Collectors.toSet()));
         } else if (tt.isSubtypeOf(List.class)) {
-            ConfigHelper.setPropertyValue(component, componentKey, s.collect(Collectors.toList()));
+            context.setPropertyValue(beanKey, s.collect(Collectors.toList()));
         }
     }
 
-    private void setMapValue(TypeToken<?> tt, Properties sp, IComponent component, String componentKey) {
+    private void setMapValue(Context<?> context, TypeToken<?> tt, Properties properties, String beanKey) {
         TypeToken<?> tt2 = tt.resolveType(tt.getRawType().getTypeParameters()[0]);
         TypeToken<?> tt3 = tt.resolveType(tt.getRawType().getTypeParameters()[1]);
-        ConfigHelper.setPropertyValue(component, componentKey,
-                sp.entrySet().stream().map(e -> new AbstractMap.SimpleEntry<>(rtext.fromText(e.getKey().toString(), tt2.getType()), rtext.fromText(e.getValue().toString(), tt3.getType())))
+        context.setPropertyValue(beanKey,
+                properties.entrySet().stream().map(e -> new AbstractMap.SimpleEntry<>(rtext.fromText(e.getKey().toString(), tt2.getType()), rtext.fromText(e.getValue().toString(), tt3.getType())))
                         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 

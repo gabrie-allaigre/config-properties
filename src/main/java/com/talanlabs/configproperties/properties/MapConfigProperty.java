@@ -1,6 +1,5 @@
 package com.talanlabs.configproperties.properties;
 
-import com.talanlabs.component.IComponent;
 import com.talanlabs.configproperties.IConfigProperty;
 import com.talanlabs.configproperties.utils.ConfigHelper;
 import com.talanlabs.configproperties.utils.IFromString;
@@ -12,7 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
 
-public class MapConfigProperty<E, F> implements IConfigProperty<Map<E, F>> {
+public class MapConfigProperty<E, F> implements IConfigProperty {
 
     public static final String DEFAULT_SEPARATOR = ".";
 
@@ -73,12 +72,10 @@ public class MapConfigProperty<E, F> implements IConfigProperty<Map<E, F>> {
     }
 
     @Override
-    public Map<E, F> setProperty(Properties properties, IComponent component) {
+    public void setProperty(Context<?> context, Properties properties) {
         Properties sp = ConfigHelper.extractProperties(properties, key + separator);
-        Map<E, F> map = sp.stringPropertyNames().stream().map(p -> set(sp, p))
-                .collect(supplier, (m, e) -> m.put(e.getKey(), e.getValue()), Map::putAll);
-        ConfigHelper.setPropertyValue(component, propertyName, map);
-        return map;
+        Map<E, F> map = sp.stringPropertyNames().stream().map(p -> set(sp, p)).collect(supplier, (m, e) -> m.put(e.getKey(), e.getValue()), Map::putAll);
+        context.setPropertyValue(propertyName, map);
     }
 
     private Map.Entry<E, F> set(Properties properties, String p) {

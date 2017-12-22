@@ -1,13 +1,11 @@
 package com.talanlabs.configproperties.properties;
 
-import com.talanlabs.component.IComponent;
 import com.talanlabs.configproperties.IConfigProperty;
-import com.talanlabs.configproperties.utils.ConfigHelper;
 import com.talanlabs.configproperties.utils.IFromString;
 
 import java.util.Properties;
 
-public class ConfigProperty<E> implements IConfigProperty<E> {
+public class ConfigProperty<E> implements IConfigProperty {
 
     public static final IFromString<String> STRING_FROM_STRING = value -> value;
     public static final IFromString<Integer> INTEGER_FROM_STRING = Integer::parseInt;
@@ -82,11 +80,11 @@ public class ConfigProperty<E> implements IConfigProperty<E> {
      * Config property for Generic value
      */
     public static <E> ConfigProperty<E> toGeneric(String key, String propertyName, IFromString<E> fromString, E defaultValue) {
-        return new ConfigProperty<E>(key, propertyName, fromString, defaultValue);
+        return new ConfigProperty<>(key, propertyName, fromString, defaultValue);
     }
 
     @Override
-    public E setProperty(Properties properties, IComponent component) {
+    public void setProperty(Context<?> context, Properties properties) {
         E v;
         if (!properties.containsKey(key)) {
             v = defaultValue;
@@ -94,8 +92,7 @@ public class ConfigProperty<E> implements IConfigProperty<E> {
             String s = properties.getProperty(key);
             v = fromString.fromString(s);
         }
-        ConfigHelper.setPropertyValue(component, propertyName, v);
-        return v;
+        context.setPropertyValue(propertyName, v);
     }
 
     @Override

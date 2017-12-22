@@ -1,7 +1,13 @@
 package com.talanlabs.configproperties.unit;
 
 import com.talanlabs.configproperties.loader.DefaultConfigLoader;
-import com.talanlabs.configproperties.properties.*;
+import com.talanlabs.configproperties.properties.ArrayConfigProperty;
+import com.talanlabs.configproperties.properties.ArrayMultiLinesConfigProperty;
+import com.talanlabs.configproperties.properties.CollectionConfigProperty;
+import com.talanlabs.configproperties.properties.CollectionMultiLinesConfigProperty;
+import com.talanlabs.configproperties.properties.ConfigProperty;
+import com.talanlabs.configproperties.properties.MapConfigProperty;
+import com.talanlabs.configproperties.properties.PropertiesConfigProperty;
 import com.talanlabs.configproperties.unit.properties.ConfigFields;
 import com.talanlabs.configproperties.unit.properties.IConfig;
 import org.assertj.core.api.BDDAssertions;
@@ -14,11 +20,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
-public class ConfigBuilderTest {
+public class ComponentConfigBuilderTest {
 
     @Test
     public void testConfigProviderRead() {
-        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
                 ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                 ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */),
@@ -39,7 +45,7 @@ public class ConfigBuilderTest {
 
     @Test
     public void testCollectionConfigProviderRead() {
-        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(CollectionConfigProperty.toList("server.groups", ConfigFields.groups, ConfigProperty.STRING_FROM_STRING, null),
                 CollectionConfigProperty.toSet("server.enums", ConfigFields.enums, ConfigProperty.STRING_FROM_STRING, null));
         IConfig config = builder.build();
@@ -50,7 +56,7 @@ public class ConfigBuilderTest {
 
     @Test
     public void testArrayConfigProviderRead() {
-        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(ArrayConfigProperty.toArrayString("server.roles", ConfigFields.roles, null));
         IConfig config = builder.build();
 
@@ -59,7 +65,7 @@ public class ConfigBuilderTest {
 
     @Test
     public void testPropertiesConfigProviderRead() {
-        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(new PropertiesConfigProperty(ConfigFields.properties));
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/propertiesconfig.properties").build());
         IConfig config = builder.build();
@@ -70,7 +76,7 @@ public class ConfigBuilderTest {
 
     @Test
     public void testMapConfigProviderRead() {
-        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(MapConfigProperty.toHashMap("server.groups", ConfigFields.groupMap, ConfigProperty.STRING_FROM_STRING, ConfigProperty.STRING_FROM_STRING, null));
         builder.configProperty(MapConfigProperty.toHashMap("server.types", ConfigFields.typeMap, ConfigProperty.INTEGER_FROM_STRING, IConfig.ServiceImplType::valueOf, null));
         builder.configProperty(MapConfigProperty.toHashMap("server.booleans", ConfigFields.booleanMap, IConfig.ServiceImplType::valueOf, ConfigProperty.BOOLEAN_FROM_STRING, null));
@@ -84,7 +90,7 @@ public class ConfigBuilderTest {
 
     @Test
     public void testOtherInternalConfigProviderRead() {
-        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
         builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
                 ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                 ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L));
@@ -106,7 +112,7 @@ public class ConfigBuilderTest {
 
             System.getProperties().put("config", tempFile.toFile().getAbsolutePath());
 
-            com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+            com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
             builder.configProperty(ConfigProperty.toString("server.nomade-servlet.url", ConfigFields.nomadeSerlvetUrl, null),
                     ConfigProperty.toGeneric("server.service-impl.type", ConfigFields.serviceImplType, IConfig.ServiceImplType::valueOf, IConfig.ServiceImplType.Fake),
                     ConfigProperty.toLong("server.max-image-upload-avarie", ConfigFields.maxSizeUploadAvarieImage, 1024L * 1024L /* 1Mo */));
@@ -126,7 +132,7 @@ public class ConfigBuilderTest {
 
     @Test
     public void testCollection2ConfigProviderRead() {
-        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/col-config.properties").build());
         builder.configProperty(CollectionMultiLinesConfigProperty.toList("server.groups", ConfigFields.groups, ConfigProperty.STRING_FROM_STRING, null),
                 CollectionMultiLinesConfigProperty.toSet("server.enums", ConfigFields.enums, ConfigProperty.STRING_FROM_STRING, null));
@@ -138,7 +144,7 @@ public class ConfigBuilderTest {
 
     @Test
     public void testArray2ConfigProviderRead() {
-        com.talanlabs.configproperties.ConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ConfigBuilder.newBuilder(IConfig.class);
+        com.talanlabs.configproperties.ComponentConfigBuilder<IConfig> builder = com.talanlabs.configproperties.ComponentConfigBuilder.newBuilder(IConfig.class);
         builder.configLoader(DefaultConfigLoader.newBuilder().internalPropertiesPath("properties/array-config.properties").build());
         builder.configProperty(ArrayMultiLinesConfigProperty.toArrayString("server.roles", ConfigFields.roles, null));
         IConfig config = builder.build();

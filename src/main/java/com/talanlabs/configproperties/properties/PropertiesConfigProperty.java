@@ -1,12 +1,10 @@
 package com.talanlabs.configproperties.properties;
 
-import com.talanlabs.component.IComponent;
 import com.talanlabs.configproperties.IConfigProperty;
-import com.talanlabs.configproperties.utils.ConfigHelper;
 
 import java.util.Properties;
 
-public class PropertiesConfigProperty implements IConfigProperty<Properties> {
+public class PropertiesConfigProperty implements IConfigProperty {
 
     private final String propertyName;
 
@@ -17,9 +15,8 @@ public class PropertiesConfigProperty implements IConfigProperty<Properties> {
     }
 
     @Override
-    public Properties setProperty(Properties properties, IComponent component) {
-        ConfigHelper.setPropertyValue(component, propertyName, properties);
-        return properties;
+    public void setProperty(Context<?> context, Properties properties) {
+        context.setPropertyValue(propertyName, properties);
     }
 
     @Override

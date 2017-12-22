@@ -1,6 +1,5 @@
 package com.talanlabs.configproperties.properties;
 
-import com.talanlabs.component.IComponent;
 import com.talanlabs.configproperties.IConfigProperty;
 import com.talanlabs.configproperties.utils.ConfigHelper;
 import com.talanlabs.configproperties.utils.IFromString;
@@ -8,7 +7,7 @@ import com.talanlabs.configproperties.utils.IFromString;
 import java.util.Properties;
 import java.util.function.IntFunction;
 
-public class ArrayMultiLinesConfigProperty<E> implements IConfigProperty<E[]> {
+public class ArrayMultiLinesConfigProperty<E> implements IConfigProperty {
 
     public static final String DEFAULT_SEPARATOR = ".";
 
@@ -107,13 +106,14 @@ public class ArrayMultiLinesConfigProperty<E> implements IConfigProperty<E[]> {
     }
 
     @Override
-    public E[] setProperty(Properties properties, IComponent component) {
+    public void setProperty(Context<?> context, Properties properties) {
         Properties sp = ConfigHelper.extractProperties(properties, key + separator);
+        E[] array;
         if (sp.isEmpty()) {
-            return defaultValue;
+            array = defaultValue;
+        } else {
+            array = sp.stringPropertyNames().stream().sorted().map(sp::getProperty).map(elementFromString::fromString).toArray(intFunction);
         }
-        E[] array = sp.stringPropertyNames().stream().sorted().map(sp::getProperty).map(elementFromString::fromString).toArray(intFunction);
-        ConfigHelper.setPropertyValue(component, propertyName, array);
-        return array;
+        context.setPropertyValue(propertyName, array);
     }
 }
