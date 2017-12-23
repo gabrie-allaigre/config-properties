@@ -4,6 +4,7 @@ import com.talanlabs.component.IComponent;
 import com.talanlabs.component.annotation.ComponentBean;
 import com.talanlabs.configproperties.properties.autoconfig.DefaultPropertyValue;
 import com.talanlabs.configproperties.properties.autoconfig.PropertyKey;
+import com.talanlabs.configproperties.properties.autoconfig.SubConfig;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public interface IAutoConfig extends IComponent {
     }
 
     @ComponentBean
+    @SubConfig
     interface ISubConfig extends IComponent {
 
         @PropertyKey(alternative = "HOST")
@@ -61,6 +63,7 @@ public interface IAutoConfig extends IComponent {
         IAuthConfig getAuth();
     }
 
+    @SubConfig
     interface IAuthConfig extends IComponent {
 
         String getLogin();

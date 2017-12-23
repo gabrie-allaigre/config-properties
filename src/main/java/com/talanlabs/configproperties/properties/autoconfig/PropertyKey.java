@@ -3,7 +3,7 @@ package com.talanlabs.configproperties.properties.autoconfig;
 import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD,ElementType.FIELD})
+@Target({ ElementType.METHOD, ElementType.FIELD })
 @Inherited
 public @interface PropertyKey {
 
@@ -26,4 +26,5 @@ public @interface PropertyKey {
      * @return if true, alternative replace all value
      */
     boolean replaceAll() default false;
+
 }

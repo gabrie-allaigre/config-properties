@@ -2,6 +2,7 @@ package com.talanlabs.configproperties.unit.properties;
 
 import com.talanlabs.configproperties.properties.autoconfig.DefaultPropertyValue;
 import com.talanlabs.configproperties.properties.autoconfig.PropertyKey;
+import com.talanlabs.configproperties.properties.autoconfig.SubConfig;
 
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,7 @@ public class AutoConfigBean  {
         NomadeServlet, Fake, RusService
     }
 
+    @SubConfig
     public static class SubConfigBean {
 
         @PropertyKey(alternative = "HOST")
@@ -110,6 +112,7 @@ public class AutoConfigBean  {
         }
     }
 
+    @SubConfig
     public static class AuthConfigBean {
 
         private String login;

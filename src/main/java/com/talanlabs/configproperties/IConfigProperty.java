@@ -7,7 +7,7 @@ import java.util.Properties;
 public interface IConfigProperty {
 
     /**
-     * Set propertie in component
+     * Set propertie in bean
      *
      * @param context    context
      * @param properties current properties
@@ -17,7 +17,7 @@ public interface IConfigProperty {
     interface Context<E> {
 
         /**
-         * Set value in component, create sub component
+         * Set value in bean, create sub bean
          *
          * @param propertyName property with dot
          * @param value        value of property

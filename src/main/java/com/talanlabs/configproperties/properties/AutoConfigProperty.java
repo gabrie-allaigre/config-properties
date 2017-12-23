@@ -5,6 +5,7 @@ import com.talanlabs.configproperties.IConfigProperty;
 import com.talanlabs.configproperties.meta.MetaInfoBean;
 import com.talanlabs.configproperties.properties.autoconfig.DefaultPropertyValue;
 import com.talanlabs.configproperties.properties.autoconfig.PropertyKey;
+import com.talanlabs.configproperties.properties.autoconfig.SubConfig;
 import com.talanlabs.configproperties.utils.ConfigHelper;
 import com.talanlabs.rtext.Rtext;
 import com.talanlabs.rtext.configuration.IRtextConfiguration;
@@ -53,11 +54,12 @@ public class AutoConfigProperty implements IConfigProperty {
             propertyKey += propertyName;
         }
 
-        if (Properties.class.isAssignableFrom(metaInfoBean.getPropertyClass(propertyName))) {
+        Class<?> propertyClass = metaInfoBean.getPropertyClass(propertyName);
+        if (Properties.class.isAssignableFrom(propertyClass)) {
             context.setPropertyValue(beanKey, ConfigHelper.extractProperties(properties, StringUtils.isNotBlank(propertyPrefix) ? propertyPrefix : ""));
         } else {
             boolean res = setValue(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, ignoreDefault, pk);
-            if (!res && ConfigHelper.hasPrefixKey(properties, propertyKey + ".")) {
+            if (!res && propertyClass.isAnnotationPresent(SubConfig.class)) {
                 setBean(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, ignoreDefault, pk);
             }
         }
