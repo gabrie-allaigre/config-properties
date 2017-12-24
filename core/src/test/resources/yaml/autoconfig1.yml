@@ -1,0 +1,10 @@
+name: Toto
+type: NomadeServlet
+size: 10
+toto: 15
+subConfig:
+  smtpHost: rien.com
+  smtpPort: 22
+  auth:
+    login: admin
+    password: demo

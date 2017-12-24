@@ -1,0 +1,18 @@
+server:
+  groups:
+    - admin
+    - user
+  roles:
+    - admin1
+    - user2
+    - admin3
+    - user4
+    - admin5
+    - user6
+    - admin7
+    - user8
+    - admin9
+    - user10
+  enums:
+    - RusService
+    - Fake

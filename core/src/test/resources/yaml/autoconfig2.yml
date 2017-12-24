@@ -1,0 +1,8 @@
+server:
+  name: Toto
+  type: NomadeServlet
+  size: 10
+  width: 25
+  subConfig:
+    smtpHost: rien.com
+    smtpPort: 22
