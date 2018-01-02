@@ -143,7 +143,14 @@ ConfigBean config = builder.build();
 
 > By default, find first not null file in resources `config.properties` or `config.yml` or get file in environnement variable `config.file`, and compose with system properties and environnement variables.
 
-Options in builder `AutoConfigProperty`
+Options in `ConfigBuilder.newBuilder`
+
+|Method|Description|
+|------|-----------|
+| configLoader | Configure loader |
+| configProperty | Add a config property |
+
+Options in `AutoConfigProperty`
 
 |Method|Description|
 |------|-----------|
