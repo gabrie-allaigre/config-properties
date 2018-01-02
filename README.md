@@ -2,7 +2,7 @@
  
 ## Description
 
-Simplify configuration with file internal or external `properties` or `yaml` to a Component Bean (https://github.com/gabrie-allaigre/component-bean)
+Simplify configuration with file internal or external `properties` or `yaml` to a Bean.
 
 ## Configuration
 
@@ -12,7 +12,17 @@ Add in pom.xml :
 <dependency>
 	<groupId>com.talanlabs</groupId>
 	<artifactId>config-properties</artifactId>
-	<version>1.1.4</version>
+	<version>2.0.0</version>
+</dependency>
+```
+
+With a Component Bean (https://github.com/gabrie-allaigre/component-bean)
+
+```xml
+<dependency>
+	<groupId>com.talanlabs</groupId>
+	<artifactId>component-config-properties</artifactId>
+	<version>2.0.0</version>
 </dependency>
 ```
 
@@ -20,43 +30,73 @@ Add in pom.xml :
 
 ### Auto
 
-Create component:
+Bean:
 
 ```java
-@ComponentBean
-public interface IConfig extends IComponent {
+public class ConfigBean  {
 
-    String getName();
-
-    Type getType();
-
-    long getSize();
-
+    private String name;
+    private Type type;
+    private long size;
     @DefaultPropertyValue("51")
-    int getWidth();
-
+    private int width;
     @PropertyKey("toto")
-    int getTiti();
+    private int titi;
+    private SubConfigBean subConfig;
+    private String[] roles;
+    private Map<String, String> props;
 
-    ISubConfig getSubConfig();
+    public String getName() {
+        return name;
+    }
 
-    List<String> getRoles();
-    
-    Map<String,String> getProps();
+    public Type getType() {
+        return type;
+    }
 
-    enum Type {
+    public long getSize() {
+        return size;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getTiti() {
+        return titi;
+    }
+
+    public SubConfigBean getSubConfig() {
+        return subConfig;
+    }
+
+    public String[] getRoles() {
+        return roles;
+    }
+
+    public Map<String, String> getProps() {
+        return props;
+    }
+
+    public enum Type {
         NomadeServlet, Fake, RusService
     }
 
-    interface ISubConfig extends IComponent {
+    @SubConfig
+    public static class SubConfigBean {
 
-        @PropertyKey(alternative="SMTP_HOST")
-        String getSmtpHost();
+        @PropertyKey(alternative = "HOST")
+        private String smtpHost;
+        private Integer smtpPort;
+        
+        public String getSmtpHost() {
+            return smtpHost;
+        }
 
-        @PropertyKey(alternative="SMTP_PORT")
-        Integer getSmtpPort();
-
-    }   
+        public Integer getSmtpPort() {
+            return smtpPort;
+        }
+    }
 }
 ```
 
@@ -96,9 +136,9 @@ props.class=SQL.class
 Create config builder :
 
 ```java
-ConfigBuilder<IConfig> builder = ConfigBuilder.newBuilder(IConfig.class);
+ConfigBuilder<ConfigBean> builder = ConfigBuilder.newBuilder(ConfigBean.class);
 builder.configProperty(AutoConfigProperty.newBuilder().build());
-IConfig config = builder.build();
+ConfigBean config = builder.build();
 ```
 
 > By default, find first not null file in resources `config.properties` or `config.yml` or get file in environnement variable `config.file`, and compose with system properties and environnement variables.
@@ -205,3 +245,54 @@ builder.configLoader(
 | Properties | PropertiesConfigProperty |
 
 **You can add other types by creating a class implementing an `IConfigProperty`**
+
+## ComponentBean
+
+Set config with ComponentBean:
+
+```java
+@ComponentBean
+public interface IConfig extends IComponent {
+
+    String getName();
+
+    Type getType();
+
+    long getSize();
+
+    @DefaultPropertyValue("51")
+    int getWidth();
+
+    @PropertyKey("toto")
+    int getTiti();
+
+    ISubConfig getSubConfig();
+
+    List<String> getRoles();
+    
+    Map<String,String> getProps();
+
+    enum Type {
+        NomadeServlet, Fake, RusService
+    }
+
+    @SubConfig
+    interface ISubConfig extends IComponent {
+
+        @PropertyKey(alternative="SMTP_HOST")
+        String getSmtpHost();
+
+        @PropertyKey(alternative="SMTP_PORT")
+        Integer getSmtpPort();
+
+    }   
+}
+```
+
+Create config builder :
+
+```java
+ComponentConfigBuilder<IConfig> builder = ComponentConfigBuilder.newBuilder(IConfig.class);
+builder.configProperty(AutoConfigProperty.newBuilder().build());
+IConfig config = builder.build();
+```
