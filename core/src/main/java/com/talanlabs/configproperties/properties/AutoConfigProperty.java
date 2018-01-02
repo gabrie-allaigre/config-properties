@@ -13,7 +13,12 @@ import com.talanlabs.rtext.configuration.RtextConfigurationBuilder;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -55,13 +60,12 @@ public class AutoConfigProperty implements IConfigProperty {
         }
 
         Class<?> propertyClass = metaInfoBean.getPropertyClass(propertyName);
-        if (Properties.class.isAssignableFrom(propertyClass)) {
+        if (propertyClass.isAnnotationPresent(SubConfig.class)) {
+            setBean(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, ignoreDefault, pk);
+        } else if (Properties.class.isAssignableFrom(propertyClass)) {
             context.setPropertyValue(beanKey, ConfigHelper.extractProperties(properties, StringUtils.isNotBlank(propertyPrefix) ? propertyPrefix : ""));
         } else {
-            boolean res = setValue(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, ignoreDefault, pk);
-            if (!res && propertyClass.isAnnotationPresent(SubConfig.class)) {
-                setBean(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, ignoreDefault, pk);
-            }
+            setValue(context, properties, beanKey, propertyKey, metaInfoBean, propertyName, ignoreDefault, pk);
         }
     }
 
