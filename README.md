@@ -161,7 +161,7 @@ Options in `AutoConfigProperty`
 
 - `@DefaultPropertyValue` set default value if not found
 
-- `PropertyKey`
+- `@PropertyKey`
 
 |Method|Description|
 |------|-----------|
@@ -169,6 +169,8 @@ Options in `AutoConfigProperty`
 | alternative | Add other full name, use for environnement variable. Ex: `subConfig.smtpHost` or `SMTP_HOST` |
 | ignore | AutoConfig ignore field |
 | replaceAll | Only for List or Map, replace or not all value if exist alternative |
+
+- `@SubConfig` set a sub config
 
 ### Manuel
 
